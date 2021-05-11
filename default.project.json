@@ -1,0 +1,33 @@
+{
+  "name": "Ro-Express",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "express": {
+        "$path": "src"
+      }
+    },
+    
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      
+      "Tests": {
+        "$path": "test/Server"
+      }
+    },
+    
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        
+        "Tests": {
+          "$path": "test/Client"
+        }
+      }
+    }
+  }
+}
