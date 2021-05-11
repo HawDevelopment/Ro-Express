@@ -1,0 +1,397 @@
+<roblox version="4">
+  <Item class="ReplicatedStorage" referent="0">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="ModuleScript" referent="1">
+      <Properties>
+        <string name="Name">express</string>
+        <string name="Source">return {
+    App = require(script.App),
+    Response = require(script.Response),
+    Request = require(script.Request)
+}</string>
+      </Properties>
+      <Item class="ModuleScript" referent="2">
+        <Properties>
+          <string name="Name">App</string>
+          <string name="Source">--[[
+    App Class
+    HawDevelopment
+    5/11/2021
+--]]
+
+
+local Signal = require(script.Parent.Signal)
+local Methods = require(script.Parent.Methods)
+
+local App = {}
+App.__index = App
+
+function App.new()
+    
+    local self = setmetatable({},App)
+    
+    self._methods = {}
+    self._name = {}
+    self._newitem = Signal.new()
+    
+    self._newitem:Connect(function()
+        if self._root then
+            self:Listen(self._name)
+        end
+        
+    end)
+    
+    return self
+end
+
+function App:Listen(name: string | number)
+    
+    self._name = assert(name, "Expected a name!")
+    if self._root or self._build then
+        return
+    end
+    
+    local Root = Instance.new("Folder")
+    Root.Name = name
+    
+    if #self._methods > 0 then
+        
+        for _, method in pairs(self._methods) do
+            
+            if not method._build then
+                method:Build(Root)
+            end
+            
+        end
+    end
+    
+    Root.Parent = game:GetService("ReplicatedStorage")
+    self._root = Root
+    
+    return Root
+end
+
+function App:_registerMethod(method)
+    
+    self._methods[method._path] = method
+    self._newitem:Fire()
+end
+
+function App:get(...)
+    App:_registerMethod(Methods.get(self,...))
+end
+
+
+return App</string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="3">
+        <Properties>
+          <string name="Name">Methods</string>
+          <string name="Source">--[[
+    Methods Class
+    HawDevelopment
+    5/11/2021
+--]]
+
+local Methods = {}
+Methods.__index = Methods
+
+function Methods._new(type: string, path: string, callback: (any) -> any)
+    
+    local self = setmetatable({},Methods)
+    
+    self._type = type
+    self._path = path
+    self._callback = callback
+    
+    return self
+end
+
+function Methods.setBuild(inst: Instance, type: string): Instance
+    inst:SetAttribute("TYPE",type)
+end
+
+function Methods.newInstance(parent: Instance, name: string, type: string): Folder
+    local inst = Instance.new(type)
+    inst.Name = name
+    inst.Parent = parent
+    return inst
+end
+
+function Methods:Build(parent: Folder)
+    
+    local path = string.gsub(self._path, "^/", "")
+    local split = path:split("/")
+    
+    if #split &lt; 1 then
+        Methods.setBuild(parent,self._type)
+    else
+        local curr: Instance = parent
+        for i = 1, #split, 1 do
+            
+            local temp = curr:FindFirstChild(split[i])
+            if temp then
+                curr = temp
+            else
+                temp = Methods.newInstance(curr, split[i], "RemoteEvent")
+                Methods.setBuild(temp,self._type)
+            end
+        end
+    end
+    
+    return parent
+end
+
+function Methods.get(_, path, callback)
+    path = assert(path, "Need a valid path")
+    callback = assert(callback, "Need a valid callback")
+    
+    return Methods._new("GET", path, callback)
+end
+
+function Methods.get()
+    
+end
+
+function Methods.get()
+    
+end
+
+function Methods.get()
+    
+end
+
+function Methods.get()
+    
+end
+
+return Methods</string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="4">
+        <Properties>
+          <string name="Name">Request</string>
+          <string name="Source"></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="5">
+        <Properties>
+          <string name="Name">Response</string>
+          <string name="Source"></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="6">
+        <Properties>
+          <string name="Name">Signal</string>
+          <string name="Source">-- Signal
+-- Stephen Leitnick
+-- Based off of Anaminus' Signal class: https://gist.github.com/Anaminus/afd813efc819bad8e560caea28942010
+-- Taken from: https://raw.githubusercontent.com/Sleitnick/Knit/main/src/Util/Signal.lua
+
+--[[
+
+	signal = Signal.new([maid: Maid])
+	signal = Signal.Proxy(rbxSignal: RBXScriptSignal [, maid: Maid])
+
+	Signal.Is(object: any): boolean
+
+	signal:Fire(...)
+	signal:Wait()
+	signal:WaitPromise()
+	signal:Destroy()
+	signal:DisconnectAll()
+
+	connection = signal:Connect((...) -> void)
+
+	connection:Disconnect()
+	connection:IsConnected()
+
+--]]
+
+local Promise = require(script.Parent.Promise)
+
+local Connection = {}
+Connection.__index = Connection
+
+function Connection.new(signal, connection)
+	local self = setmetatable({
+		_signal = signal;
+		_conn = connection;
+		Connected = true;
+	}, Connection)
+	return self
+end
+
+function Connection:Disconnect()
+	if (self._conn) then
+		self._conn:Disconnect()
+		self._conn = nil
+	end
+	if (not self._signal) then return end
+	self.Connected = false
+	local connections = self._signal._connections
+	local connectionIndex = table.find(connections, self)
+	if (connectionIndex) then
+		local n = #connections
+		connections[connectionIndex] = connections[n]
+		connections[n] = nil
+	end
+	self._signal = nil
+end
+
+function Connection:IsConnected()
+	if (self._conn) then
+		return self._conn.Connected
+	end
+	return false
+end
+
+Connection.Destroy = Connection.Disconnect
+
+--------------------------------------------
+
+local Signal = {}
+Signal.__index = Signal
+
+
+function Signal.new(maid)
+	local self = setmetatable({
+		_bindable = Instance.new("BindableEvent");
+		_connections = {};
+		_args = {};
+		_threads = 0;
+		_id = 0;
+	}, Signal)
+	if (maid) then
+		maid:GiveTask(self)
+	end
+	return self
+end
+
+
+function Signal.Proxy(rbxScriptSignal, maid)
+	assert(typeof(rbxScriptSignal) == "RBXScriptSignal", "Argument #1 must be of type RBXScriptSignal")
+	local signal = Signal.new(maid)
+	signal:_setProxy(rbxScriptSignal)
+	return signal
+end
+
+
+function Signal.Is(obj)
+	return (type(obj) == "table" and getmetatable(obj) == Signal)
+end
+
+
+function Signal:_setProxy(rbxScriptSignal)
+	assert(typeof(rbxScriptSignal) == "RBXScriptSignal", "Argument #1 must be of type RBXScriptSignal")
+	self:_clearProxy()
+	self._proxyHandle = rbxScriptSignal:Connect(function(...)
+		self:Fire(...)
+	end)
+end
+
+
+function Signal:_clearProxy()
+	if (self._proxyHandle) then
+		self._proxyHandle:Disconnect()
+		self._proxyHandle = nil
+	end
+end
+
+
+function Signal:Fire(...)
+	local totalListeners = (#self._connections + self._threads)
+	if (totalListeners == 0) then return end
+	local id = self._id
+	self._id += 1
+	self._args[id] = {totalListeners, {n = select("#", ...), ...}}
+	self._threads = 0
+	self._bindable:Fire(id)
+end
+
+
+function Signal:Wait()
+	self._threads += 1
+	local id = self._bindable.Event:Wait()
+	local args = self._args[id]
+	args[1] -= 1
+	if (args[1] &lt;= 0) then
+		self._args[id] = nil
+	end
+	return table.unpack(args[2], 1, args[2].n)
+end
+
+
+function Signal:WaitPromise()
+	return Promise.new(function(resolve)
+		resolve(self:Wait())
+	end)
+end
+
+
+function Signal:Connect(handler)
+	local connection = Connection.new(self, self._bindable.Event:Connect(function(id)
+		local args = self._args[id]
+		args[1] -= 1
+		if (args[1] &lt;= 0) then
+			self._args[id] = nil
+		end
+		handler(table.unpack(args[2], 1, args[2].n))
+	end))
+	table.insert(self._connections, connection)
+	return connection
+end
+
+
+function Signal:DisconnectAll()
+	for _,c in ipairs(self._connections) do
+		if (c._conn) then
+			c._conn:Disconnect()
+		end
+	end
+	self._connections = {}
+	self._args = {}
+end
+
+
+function Signal:Destroy()
+	self:DisconnectAll()
+	self:_clearProxy()
+	self._bindable:Destroy()
+end
+
+
+return Signal</string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="7">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Folder" referent="8">
+      <Properties>
+        <string name="Name">Tests</string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="StarterPlayer" referent="9">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="10">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="Folder" referent="11">
+        <Properties>
+          <string name="Name">Tests</string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>
