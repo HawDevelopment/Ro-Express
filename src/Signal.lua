@@ -23,8 +23,6 @@
 
 --]]
 
-local Promise = require(script.Parent.Promise)
-
 local Connection = {}
 Connection.__index = Connection
 
@@ -133,12 +131,6 @@ function Signal:Wait()
 		self._args[id] = nil
 	end
 	return table.unpack(args[2], 1, args[2].n)
-end
-
-function Signal:WaitPromise()
-	return Promise.new(function(resolve)
-		resolve(self:Wait())
-	end)
 end
 
 function Signal:Connect(handler)
