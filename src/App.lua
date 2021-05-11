@@ -4,21 +4,16 @@
     5/11/2021
 --]]
 
-local function Extend(tab1,tab2)
-    for i,v in pairs(tab2) do
-        tab1[i] = v
-    end
-    return tab1
-end
 
 local Signal = require(script.Parent.Signal)
 local Methods = require(script.Parent.Methods)
 
 local App = {}
+App.__index = App
 
 function App.new()
     
-    local self = setmetatable({},{__index = Extend(App, Methods)})
+    local self = setmetatable({},App)
     
     self._methods = {}
     self._name = {}
@@ -60,5 +55,16 @@ function App:Listen(name: string | number)
     
     return Root
 end
+
+function App:_registerMethod(method)
+    
+    self._methods[method._path] = method
+    self._newitem:Fire()
+end
+
+function App:get(...)
+    App:_registerMethod(Methods.get(self,...))
+end
+
 
 return App
