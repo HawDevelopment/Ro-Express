@@ -28,19 +28,20 @@ function App.new()
 	return self
 end
 
-function App:_newPath(path, parentpath)
+function App:_newPath(path, parentpath, parents)
 	assert(path, "Need a valid path")
 
 	local checkpath = parentpath or self._paths
 
 	if checkpath[path] then
-		return
+		return checkpath[path]
 	end
 
 	checkpath[path] = {
 		_methods = {},
 		_routers = {},
 		_paths = {},
+		_parents = parents or {},
 	}
 
 	return checkpath[path]
@@ -53,7 +54,7 @@ function App:_addToPath(path, value)
 	local index
 	if value.Classname == "Method" then
 		index = "_methods"
-	elseif value.Classname == "Router" then
+	elseif Router._is(value) then
 		index = "_routers"
 	end
 
@@ -70,12 +71,20 @@ function App:_addRemoteToPath(path, remote)
 	remote.OnServerInvoke = function(player, ...)
 		--TODO: Add response and request and next()!
 
+		for _, parent in pairs(path._parents) do
+			if parent._routers then
+				for _, router in pairs(parent._routers) do
+					Router._run(router, ...)
+				end
+			end
+		end
+
 		for _, router in pairs(path._routers) do
-			Router._run(router, "Hello World!")
+			Router._run(router, ...)
 		end
 
 		for _, method in pairs(path._methods) do
-			Methods:_run(method, "Hello World!")
+			Methods:_run(method, ...)
 		end
 	end
 end
@@ -117,15 +126,17 @@ function App:Listen(name: string | number)
 	return Root
 end
 
-function GetPathFromMethod(path, split, index)
+function GetPathFromMethod(path, split, index, parents)
+	parents = parents or {}
 	local checkpath = path._path ~= nil and path._path or path
 
 	for name, tab in pairs(checkpath) do
 		if split[index] == name then
 			if #split == index then
-				return tab
+				return tab, parents
 			else
-				return GetPathFromMethod(tab._paths, split, index + 1)
+				parents[#parents + 1] = tab
+				return GetPathFromMethod(tab._paths, split, index + 1), parents
 			end
 		end
 	end
@@ -133,10 +144,10 @@ end
 
 function App:_registerValue(tab: { any })
 	local split = tab._path:gsub("^/", ""):split("/")
-	local path = GetPathFromMethod(self._paths, split, 1)
+	local path, parents = GetPathFromMethod(self._paths, split, 1, { self._paths })
 
 	if not path then
-		path = self:_newPath(split[#split], path)
+		path = self:_newPath(split[#split], path, parents)
 	end
 
 	self:_addToPath(path, tab)
@@ -157,7 +168,7 @@ end
 function App:use(path: string, inst: any)
 	assert(path, "Need a valid path!")
 
-	if Router._is(inst) then
+	if Router._is(inst) or type(inst) == "function" then
 		return self:_registerValue(Router._new(path, inst))
 	end
 end

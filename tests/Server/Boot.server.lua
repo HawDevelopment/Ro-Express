@@ -9,8 +9,8 @@ local App = express.App
 
 local app = App.new()
 
-app:get("/Test", function(arg1)
-	print(arg1)
+app:get("/Test", function(arg)
+	print(arg)
 end)
 
 app:post("/Test2", function()
@@ -23,6 +23,11 @@ end)
 
 app:use("/Test", function()
 	print("Middleware!")
+end)
+
+app:use("/Test/Test3", function(arg)
+	print(arg)
+	return "Hello!"
 end)
 
 app:Listen("Debug")

@@ -12,7 +12,7 @@ Router.Classname = "Router"
 local Runners = {
 
 	["function"] = function(inst: any, ...)
-		inst._router(...)
+		return inst._router(...)
 	end,
 	["router"] = function(inst: any, ...)
 		--TODO: Add router instance!
@@ -20,37 +20,26 @@ local Runners = {
 }
 
 function Router._is(inst: any)
-	for classname, _ in pairs(Runners) do
-		if typeof(inst) == classname or inst.Classname == classname then
-			return true
-		end
-	end
-	return false
+	return type(inst) == "table" and getmetatable(inst) == Router
 end
 
 function Router._run(inst: any, ...)
-	if type(inst._router) == "function" then
-		Runners["function"](inst)
-		return inst
-	end
-
 	for classname, func in pairs(Runners) do
-		if typeof(inst) == classname or inst.Classname == classname then
-			func(inst, ...)
+		if inst.Classname == classname then
+			return func(inst, ...)
 		end
 	end
-
-	return inst
 end
 
 function Router._new(path: string, inst: any)
 	assert(path, "Need a valid path!")
-	assert(Router._is(inst), "Need a valid router!")
+	assert(Router._is(inst) or type(inst) == "function", "Need a valid router!")
 
 	return setmetatable({
 		_path = path,
 		_router = inst,
-	}, { __index = Router })
+		Classname = type(inst) == "function" and "function" or "Router",
+	}, Router)
 end
 
 return Router
