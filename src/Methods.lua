@@ -7,6 +7,10 @@
 local Methods = {}
 Methods.__index = Methods
 
+function Methods:_run(method, ...)
+	return method._callback(...)
+end
+
 function Methods._new(type: string, path: string, callback: (any) -> any)
 	local self = setmetatable({}, Methods)
 
@@ -45,6 +49,7 @@ function Methods:Build(parent: Folder)
 			else
 				temp = Methods.newInstance(curr, split[i], "RemoteFunction")
 				Methods.setAttributes(temp, self._type, self._path)
+				curr = temp
 			end
 		end
 	end
@@ -53,8 +58,8 @@ function Methods:Build(parent: Folder)
 		curr.OnServerInvoke = self._callback
 	end
 
-    self._build = true
-	return parent
+	self._build = true
+	return curr
 end
 
 function Methods.get(_, path, callback)
