@@ -17,7 +17,11 @@ function App.new()
 	self._methods = {}
 	self._name = {}
 	self._newitem = Signal.new()
-
+	
+	self.Locals = setmetatable({}, {
+		__metatable = "Locked",
+	})
+	
 	self._newitem:Connect(function(path)
 		
 		if self._root then
