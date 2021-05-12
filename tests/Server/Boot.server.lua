@@ -13,8 +13,11 @@ app:get("/Test", function()
 	print("Hello World!")
 end)
 
-app:get("/Test2", function()
+app:post("/Test2", function()
 	print("Foo Bar Bazz")
 end)
 
+app:delete("/Test/Test3", function()
+	print("Why do i even try?")
+end)
 app:Listen("Debug")
