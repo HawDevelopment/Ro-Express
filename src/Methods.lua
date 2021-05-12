@@ -53,6 +53,7 @@ function Methods:Build(parent: Folder)
 		curr.OnServerInvoke = self._callback
 	end
 
+    self._build = true
 	return parent
 end
 

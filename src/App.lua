@@ -12,18 +12,49 @@ App.__index = App
 
 function App.new()
 	local self = setmetatable({}, App)
-
+	
+	self._paths = {}
 	self._methods = {}
 	self._name = {}
 	self._newitem = Signal.new()
 
-	self._newitem:Connect(function()
+	self._newitem:Connect(function(path)
+		
 		if self._root then
-			self:Listen(self._name)
+			self:_listenOnPath(path, self._root)
 		end
 	end)
 
 	return self
+end
+
+function App:_newPath(path)
+	assert(path, "Need a valid path")
+	if self._paths[path] then
+		return
+	end
+	
+	self._paths[path] = {}
+end
+
+function App:_addToPath(path,value)
+	
+	if self._paths[path] then
+		
+		table.insert(self._paths[path], value)
+		self._newitem:Fire(path)
+	end
+	
+end
+
+function App:_listenOnPath(path, parent)
+	
+	for _, method in pairs(path) do
+		
+		if not method._build then
+			method:Build(parent)
+		end
+	end
 end
 
 function App:Listen(name: string | number)
@@ -35,11 +66,10 @@ function App:Listen(name: string | number)
 	local Root = Instance.new("Folder")
 	Root.Name = name
 
-	print(self._methods)
-	for _, method in pairs(self._methods) do
-		if not method._build then
-			method:Build(Root)
-		end
+	print(self._paths)
+	for _, path in pairs(self._paths) do
+		
+		self:_listenOnPath(path, Root)
 	end
 
 	Root.Parent = game:GetService("ReplicatedStorage")
@@ -49,8 +79,12 @@ function App:Listen(name: string | number)
 end
 
 function App:_registerMethod(method)
-	self._methods[method._path] = method
-	self._newitem:Fire()
+	
+	if not self._paths[method._path] then
+		self:_newPath(method._path)
+	end
+	
+	self:_addToPath(method._path,method)
 end
 
 function App:get(...)
