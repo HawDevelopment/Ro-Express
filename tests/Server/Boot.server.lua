@@ -9,8 +9,8 @@ local App = express.App
 
 local app = App.new()
 
-app:get("/Test", function()
-	print("Hello World!")
+app:get("/Test", function(arg1)
+	print(arg1)
 end)
 
 app:post("/Test2", function()
@@ -18,6 +18,6 @@ app:post("/Test2", function()
 end)
 
 app:delete("/Test/Test3", function()
-	print("Why do i even try?")
+	print("Hello World!")
 end)
 app:Listen("Debug")

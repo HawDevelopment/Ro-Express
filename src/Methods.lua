@@ -7,6 +7,8 @@
 local Methods = {}
 Methods.__index = Methods
 
+Methods.Classname = "Method"
+
 function Methods:_run(method, ...)
 	return method._callback(...)
 end
