@@ -12,7 +12,7 @@ Router.Classname = "Router"
 local Runners = {
 
 	["function"] = function(inst: any, ...)
-		inst(...)
+		inst._router(...)
 	end,
 	["router"] = function(inst: any, ...)
 		--TODO: Add router instance!
