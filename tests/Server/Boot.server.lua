@@ -20,4 +20,9 @@ end)
 app:delete("/Test/Test3", function()
 	print("Hello World!")
 end)
+
+app:use("/Test", function()
+	print("Middleware!")
+end)
+
 app:Listen("Debug")
