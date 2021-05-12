@@ -53,7 +53,7 @@ function Methods:Build(parent: Folder)
 		curr.OnServerInvoke = self._callback
 	end
 
-    self._build = true
+	self._build = true
 	return parent
 end
 
@@ -76,6 +76,13 @@ function Methods.delete(_, path, callback)
 	callback = assert(callback, "Need a valid callback")
 
 	return Methods._new("DELETE", path, callback)
+end
+
+function Methods.put(_, path, callback)
+	path = assert(path, "Need a valid path")
+	callback = assert(callback, "Need a valid callback")
+
+	return Methods._new("PUT", path, callback)
 end
 
 return Methods
