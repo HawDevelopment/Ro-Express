@@ -47,8 +47,15 @@ function App:_newPath(path, parentpath)
 end
 
 function App:_addToPath(path, value)
+	assert(type(value) == "table", "Need a valid value!")
+
 	--TODO: Fix this mess
-	local index = (typeof(value) == "table" and value.Classname == "Method") and "_methods" or "_routers"
+	local index
+	if value.Classname == "Method" then
+		index = "_methods"
+	elseif value.Classname == "Router" then
+		index = "_routers"
+	end
 
 	table.insert(path[index], value)
 	self._newitem:Fire(path)
@@ -64,7 +71,7 @@ function App:_addRemoteToPath(path, remote)
 		--TODO: Add response and request and next()!
 
 		for _, router in pairs(path._routers) do
-			Router:_run(router, "Hello World!")
+			Router._run(router, "Hello World!")
 		end
 
 		for _, method in pairs(path._methods) do
@@ -111,39 +118,51 @@ function App:Listen(name: string | number)
 end
 
 function GetPathFromMethod(path, split, index)
-	if #split == index then
-		return path
-	end
-
 	for name, tab in pairs(path._path ~= nil and path._path or path) do
 		if split[index] == name then
 			return GetPathFromMethod(tab._paths, split, index + 1) or path
 		end
 	end
+
+	if #split == index then
+		return path
+	end
+
+	return path
 end
 
-function App:_registerMethod(method)
-	print(method)
-	local split = method._path:gsub("^/", ""):split("/")
+function App:_registerValue(tab: { any })
+	print(tab)
+	local split = tab._path:gsub("^/", ""):split("/")
 	local path = GetPathFromMethod(self._paths, split, 1)
 
 	if not path[split[#split]] then
 		path = self:_newPath(split[#split], path)
 	end
+	print(split)
+	print(path)
 
-	self:_addToPath(path, method)
+	self:_addToPath(path, tab)
 end
 
 function App:get(...)
-	self:_registerMethod(Methods.get(self, ...))
+	self:_registerValue(Methods.get(self, ...))
 end
 
 function App:post(...)
-	self:_registerMethod(Methods.post(self, ...))
+	self:_registerValue(Methods.post(self, ...))
 end
 
 function App:delete(...)
-	self:_registerMethod(Methods.delete(self, ...))
+	self:_registerValue(Methods.delete(self, ...))
+end
+
+function App:use(path: string, inst: any)
+	assert(path, "Need a valid path!")
+
+	if Router._is(inst) then
+		self:_registerValue(Router._new(path, inst))
+	end
 end
 
 function App:Destroy()
