@@ -91,4 +91,26 @@ function App:get(...)
 	self:_registerMethod(Methods.get(self, ...))
 end
 
+function App:post(...)
+	self:_registerMethod(Methods.post(self, ...))
+end
+
+function App:delete(...)
+	self:_registerMethod(Methods.delete(self, ...))
+end
+
+function App:Destroy()
+	
+	self._newitem:Destroy()
+	
+	if self._root then
+		self._root:Destroy()
+	end
+	
+	table.clear(self)
+	setmetatable(self, {__index = function()
+		error("This App is destroyed!",2)
+	end})
+end
+
 return App
