@@ -158,7 +158,7 @@ function App:use(path: string, inst: any)
 	assert(path, "Need a valid path!")
 
 	if Router._is(inst) then
-		self:_registerValue(Router._new(path, inst))
+		return self:_registerValue(Router._new(path, inst))
 	end
 end
 
