@@ -118,29 +118,26 @@ function App:Listen(name: string | number)
 end
 
 function GetPathFromMethod(path, split, index)
-	for name, tab in pairs(path._path ~= nil and path._path or path) do
+	local checkpath = path._path ~= nil and path._path or path
+
+	for name, tab in pairs(checkpath) do
 		if split[index] == name then
-			return GetPathFromMethod(tab._paths, split, index + 1) or path
+			if #split == index then
+				return tab
+			else
+				return GetPathFromMethod(tab._paths, split, index + 1)
+			end
 		end
 	end
-
-	if #split == index then
-		return path
-	end
-
-	return path
 end
 
 function App:_registerValue(tab: { any })
-	print(tab)
 	local split = tab._path:gsub("^/", ""):split("/")
 	local path = GetPathFromMethod(self._paths, split, 1)
 
-	if not path[split[#split]] then
+	if not path then
 		path = self:_newPath(split[#split], path)
 	end
-	print(split)
-	print(path)
 
 	self:_addToPath(path, tab)
 end
