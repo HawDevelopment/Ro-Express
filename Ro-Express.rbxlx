@@ -69,27 +69,27 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>58.9888039</X>
-					<Y>18.9627361</Y>
-					<Z>23.7229271</Z>
-					<R00>0.966034055</R00>
-					<R01>-0.0626726151</R01>
-					<R02>0.250699937</R02>
-					<R10>-0</R10>
-					<R11>0.970144689</R11>
-					<R12>0.242526948</R12>
-					<R20>-0.258415043</R20>
-					<R21>-0.234289289</R21>
-					<R22>0.937192678</R22>
+					<X>76.227478</X>
+					<Y>20.9102497</Y>
+					<Z>26.4985237</Z>
+					<R00>0.253551781</R00>
+					<R01>-0.127193794</R01>
+					<R02>0.958922982</R02>
+					<R10>-3.7252903e-09</R10>
+					<R11>0.991317451</R11>
+					<R12>0.131490663</R12>
+					<R20>-0.967321873</R20>
+					<R21>-0.0333396941</R21>
+					<R22>0.251350313</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>58.4874039</X>
-					<Y>18.4776821</Y>
-					<Z>21.8485413</Z>
+					<X>74.3096313</X>
+					<Y>20.6472683</Y>
+					<Z>25.9958229</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -706,7 +706,8 @@ end)
 app:delete("/Test/Test3", function()
 	print("Hello World!")
 end)
-app:Listen("Debug")
+
+app:Listen("App")
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
@@ -905,6 +906,8 @@ function App:_newPath(path, parentpath)
 		_routers = {},
 		_paths = {},
 	}
+
+	return checkpath[path]
 end
 
 function App:_addToPath(path, value)
@@ -945,6 +948,10 @@ function App:_listenOnPath(path, parent)
 			end
 		end
 	end
+
+	for _, newpath in pairs(path._paths) do
+		self:_listenOnPath(newpath, parent)
+	end
 end
 
 function App:Listen(name: string | number)
@@ -974,22 +981,18 @@ function GetPathFromMethod(path, split, index)
 
 	for name, tab in pairs(path._path ~= nil and path._path or path) do
 		if split[index] == name then
-			return GetPathFromMethod(tab, split, index + 1)
+			return GetPathFromMethod(tab._paths, split, index + 1) or path
 		end
 	end
-
-	return path
 end
 
 function App:_registerMethod(method)
 	print(method)
 	local split = method._path:gsub("^/", ""):split("/")
-	print(split)
 	local path = GetPathFromMethod(self._paths, split, 1)
-	print(path)
 
-	if not path[split[#split]] or not path then
-		self:_newPath(split[#split], path)
+	if not path[split[#split]] then
+		path = self:_newPath(split[#split], path)
 	end
 
 	self:_addToPath(path, method)

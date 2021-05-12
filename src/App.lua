@@ -42,6 +42,8 @@ function App:_newPath(path, parentpath)
 		_routers = {},
 		_paths = {},
 	}
+
+	return checkpath[path]
 end
 
 function App:_addToPath(path, value)
@@ -82,6 +84,10 @@ function App:_listenOnPath(path, parent)
 			end
 		end
 	end
+
+	for _, newpath in pairs(path._paths) do
+		self:_listenOnPath(newpath, parent)
+	end
 end
 
 function App:Listen(name: string | number)
@@ -111,11 +117,9 @@ function GetPathFromMethod(path, split, index)
 
 	for name, tab in pairs(path._path ~= nil and path._path or path) do
 		if split[index] == name then
-			return GetPathFromMethod(tab, split, index + 1)
+			return GetPathFromMethod(tab._paths, split, index + 1) or path
 		end
 	end
-
-	return path
 end
 
 function App:_registerMethod(method)
