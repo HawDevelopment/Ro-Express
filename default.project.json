@@ -2,30 +2,28 @@
   "name": "Ro-Express",
   "tree": {
     "$className": "DataModel",
-
+    "$ignoreUnknownInstances": true,
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "express": {
         "$path": "src"
+      },
+      "TestEz": {
+        "$path": "vendor/testez"
       }
     },
-    
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      
       "Tests": {
-        "$path": "test/Server"
+        "$path": "tests/Server"
       }
     },
-    
     "StarterPlayer": {
       "$className": "StarterPlayer",
-      
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        
         "Tests": {
-          "$path": "test/Client"
+          "$path": "tests/Client"
         }
       }
     }
