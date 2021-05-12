@@ -695,8 +695,8 @@ local App = express.App
 
 local app = App.new()
 
-app:get("/Test", function()
-	print("Hello World!")
+app:get("/Test", function(arg1)
+	print(arg1)
 end)
 
 app:post("/Test2", function()
@@ -704,7 +704,7 @@ app:post("/Test2", function()
 end)
 
 app:delete("/Test/Test3", function()
-	print("Why do i even try?")
+	print("Hello World!")
 end)
 app:Listen("Debug")
 ]]></ProtectedString>
@@ -800,6 +800,30 @@ end
 					</Properties>
 				</Item>
 			</Item>
+			<Item class="Folder" referent="RBX2EA79ECB6EFA4E0D9031E4A2F0796C0C">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Response</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBX4094692D55464B7AA0C3A6095F3AC9BF">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Methods</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBXF88AD91C97F54504A7B2C2806F3CB118">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Request</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="ServerStorage" referent="RBX81A8B74778CD4E51A978B235953D88C9">
@@ -845,20 +869,20 @@ end
 
 local Signal = require(script.Parent.Signal)
 local Methods = require(script.Parent.Methods)
+local Router = require(script.Parent.Router)
 
 local App = {}
 App.__index = App
 
 function App.new()
 	local self = setmetatable({}, App)
-	
+
 	self._paths = {}
 	self._methods = {}
 	self._name = {}
 	self._newitem = Signal.new()
 
 	self._newitem:Connect(function(path)
-		
 		if self._root then
 			self:_listenOnPath(path, self._root)
 		end
@@ -867,31 +891,58 @@ function App.new()
 	return self
 end
 
-function App:_newPath(path)
+function App:_newPath(path, parentpath)
 	assert(path, "Need a valid path")
-	if self._paths[path] then
+
+	local checkpath = parentpath or self._paths
+
+	if checkpath[path] then
 		return
 	end
-	
-	self._paths[path] = {}
+
+	checkpath[path] = {
+		_methods = {},
+		_routers = {},
+		_paths = {},
+	}
 end
 
-function App:_addToPath(path,value)
-	
-	if self._paths[path] then
-		
-		table.insert(self._paths[path], value)
-		self._newitem:Fire(path)
+function App:_addToPath(path, value)
+	--TODO: Fix this mess
+	local index = (typeof(value) == "table" and value.Classname == "Method") and "_methods" or "_routers"
+
+	table.insert(path[index], value)
+	self._newitem:Fire(path)
+end
+
+function App:_addRemoteToPath(path, remote)
+	if path._remote then
+		return
 	end
-	
+
+	path._remote = remote
+	remote.OnServerInvoke = function(player, ...)
+		--TODO: Add response and request and next()!
+
+		for _, router in pairs(path._routers) do
+			Router:_run(router, "Hello World!")
+		end
+
+		for _, method in pairs(path._methods) do
+			Methods:_run(method, "Hello World!")
+		end
+	end
 end
 
 function App:_listenOnPath(path, parent)
-	
-	for _, method in pairs(path) do
-		
+	-- building each method
+	for _, method in pairs(path._methods) do
 		if not method._build then
-			method:Build(parent)
+			local remote = method:Build(parent)
+
+			if remote ~= self._root and not path.remote then
+				self:_addRemoteToPath(path, remote)
+			end
 		end
 	end
 end
@@ -903,27 +954,45 @@ function App:Listen(name: string | number)
 	end
 
 	local Root = Instance.new("Folder")
+	self._root = Root
 	Root.Name = name
 
 	print(self._paths)
 	for _, path in pairs(self._paths) do
-		
 		self:_listenOnPath(path, Root)
 	end
 
 	Root.Parent = game:GetService("ReplicatedStorage")
-	self._root = Root
 
 	return Root
 end
 
-function App:_registerMethod(method)
-	
-	if not self._paths[method._path] then
-		self:_newPath(method._path)
+function GetPathFromMethod(path, split, index)
+	if #split == index then
+		return path
 	end
-	
-	self:_addToPath(method._path,method)
+
+	for name, tab in pairs(path._path ~= nil and path._path or path) do
+		if split[index] == name then
+			return GetPathFromMethod(tab, split, index + 1)
+		end
+	end
+
+	return path
+end
+
+function App:_registerMethod(method)
+	print(method)
+	local split = method._path:gsub("^/", ""):split("/")
+	print(split)
+	local path = GetPathFromMethod(self._paths, split, 1)
+	print(path)
+
+	if not path[split[#split]] or not path then
+		self:_newPath(split[#split], path)
+	end
+
+	self:_addToPath(path, method)
 end
 
 function App:get(...)
@@ -939,17 +1008,16 @@ function App:delete(...)
 end
 
 function App:Destroy()
-	
 	self._newitem:Destroy()
-	
+
 	if self._root then
 		self._root:Destroy()
 	end
-	
+
 	table.clear(self)
-	setmetatable(self, {__index = function()
-		error("This App is destroyed!",2)
-	end})
+	setmetatable(self, { __index = function()
+		error("This App is destroyed!", 2)
+	end })
 end
 
 return App
@@ -972,6 +1040,12 @@ return App
 
 local Methods = {}
 Methods.__index = Methods
+
+Methods.Classname = "Method"
+
+function Methods:_run(method, ...)
+	return method._callback(...)
+end
 
 function Methods._new(type: string, path: string, callback: (any) -> any)
 	local self = setmetatable({}, Methods)
@@ -1011,6 +1085,7 @@ function Methods:Build(parent: Folder)
 			else
 				temp = Methods.newInstance(curr, split[i], "RemoteFunction")
 				Methods.setAttributes(temp, self._type, self._path)
+				curr = temp
 			end
 		end
 	end
@@ -1019,8 +1094,8 @@ function Methods:Build(parent: Folder)
 		curr.OnServerInvoke = self._callback
 	end
 
-    self._build = true
-	return parent
+	self._build = true
+	return curr
 end
 
 function Methods.get(_, path, callback)
@@ -1248,6 +1323,47 @@ function Signal:Destroy()
 end
 
 return Signal
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="ModuleScript" referent="RBX4DC1C65560DC4390AADA54D7ABFDB8EE">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Router</string>
+					<string name="ScriptGuid">{831C3C8D-7B1B-47A1-AAE7-FA7B625343EA}</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+    Router Class
+    HawDevelopment
+    12/05/2021
+--]]
+
+local Router = {}
+Router.__index = Router
+
+local Runners = {
+
+	["function"] = function(inst: any, ...)
+		inst(...)
+	end,
+	["router"] = function(inst: any, ...)
+		--TODO: Add router instance!
+	end,
+}
+
+function Router:_run(inst: any, ...)
+	for classname, func in pairs(Runners) do
+		if typeof(inst) == classname or inst.Classname == classname then
+			func(inst, ...)
+		end
+	end
+
+	return inst
+end
+
+return Router
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>

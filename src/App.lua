@@ -48,7 +48,7 @@ function App:_addToPath(path, value)
 	--TODO: Fix this mess
 	local index = (typeof(value) == "table" and value.Classname == "Method") and "_methods" or "_routers"
 
-	path[index] = value
+	table.insert(path[index], value)
 	self._newitem:Fire(path)
 end
 
@@ -124,10 +124,10 @@ function App:_registerMethod(method)
 	local path = GetPathFromMethod(self._paths, split, 1)
 
 	if not path[split[#split]] then
-		self:_newPath(method._path)
+		path = self:_newPath(split[#split], path)
 	end
 
-	self:_addToPath(method._path, method)
+	self:_addToPath(path, method)
 end
 
 function App:get(...)
