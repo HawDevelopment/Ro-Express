@@ -27,7 +27,6 @@ end)
 
 app:use("/Test/Test3", function(arg)
 	print(arg)
-	return "Hello!"
 end)
 
 app:Listen("Debug")
