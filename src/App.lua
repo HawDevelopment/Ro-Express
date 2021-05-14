@@ -4,7 +4,7 @@
     5/11/2021
 --]]
 
-local Signal = require(script.Parent.Signal)
+--local Signal = require(script.Parent.Signal)
 local Methods = require(script.Parent.Methods)
 local Router = require(script.Parent.Router)
 
@@ -15,110 +15,44 @@ function App.new()
 	local self = setmetatable({}, App)
 
 	self._paths = {}
-	self._methods = {}
-	self._name = {}
-	self._newitem = Signal.new()
+	self._router = Router._new(false, true)
+	--self._newitem = Signal.new()
 
-	self._newitem:Connect(function(path)
-		if self._root then
-			self:_listenOnPath(path, self._root)
-		end
-	end)
+	--self._newitem:Connect(function(path)
+	--	self._router:Handle(path)
+	--end)
 
 	return self
 end
 
-function App:_newPath(path, parentpath, parents)
+function App:_NewPath(path, parentpath)
 	assert(path, "Need a valid path")
 
-	local checkpath = parentpath or self._paths
-
-	if checkpath[path] then
-		return checkpath[path]
-	end
-
-	checkpath[path] = {
-		_methods = {},
-		_routers = {},
-		_paths = {},
-		_parents = parents or {},
-	}
-
-	return checkpath[path]
+	table.insert(self._paths, path)
+	self._router:_NewPath(path, parentpath)
 end
 
-function App:_addToPath(path, value)
-	assert(type(value) == "table", "Need a valid value!")
+function App:_AddPath(path, value, type)
+	assert(typeof(value) == "table", "Need a valid value!")
 
-	--TODO: Fix this mess
-	local index
-	if value.Classname == "Method" then
-		index = "_methods"
-	elseif Router._is(value) then
-		index = "_routers"
-	end
-
-	table.insert(path[index], value)
-	self._newitem:Fire(path)
+	self._router:_AddPath(path, value, type)
 end
 
-function App:_addRemoteToPath(path, remote)
-	if path._remote then
-		return
-	end
-
-	path._remote = remote
-	remote.OnServerInvoke = function(player, ...)
-		--TODO: Add response and request and next()!
-
-		for _, parent in pairs(path._parents) do
-			if parent._routers then
-				for _, router in pairs(parent._routers) do
-					Router._run(router, ...)
-				end
-			end
-		end
-
-		for _, router in pairs(path._routers) do
-			Router._run(router, ...)
-		end
-
-		for _, method in pairs(path._methods) do
-			Methods:_run(method, ...)
-		end
-	end
-end
-
-function App:_listenOnPath(path, parent)
-	-- building each method
-	for _, method in pairs(path._methods) do
-		if not method._build then
-			local remote = method:Build(parent)
-
-			if remote ~= self._root and not path.remote then
-				self:_addRemoteToPath(path, remote)
-			end
-		end
-	end
-
-	for _, newpath in pairs(path._paths) do
-		self:_listenOnPath(newpath, parent)
-	end
+function App:_ListenPath(path, inst)
+	self._router:_BuildPath(path, inst)
 end
 
 function App:Listen(name: string | number)
+	assert(not self._root, "Cannot build an app already built!")
 	self._name = assert(name, "Expected a name!")
-	if self._root or self._build then
-		return
-	end
 
 	local Root = Instance.new("Folder")
 	self._root = Root
 	Root.Name = name
 
-	print(self._paths)
+	print(self._router)
 	for _, path in pairs(self._paths) do
-		self:_listenOnPath(path, Root)
+		self:_ListenPath(path, Root)
 	end
 
 	Root.Parent = game:GetService("ReplicatedStorage")
@@ -126,50 +60,33 @@ function App:Listen(name: string | number)
 	return Root
 end
 
-function GetPathFromMethod(path, split, index, parents)
-	parents = parents or {}
-	local checkpath = path._path ~= nil and path._path or path
+function App:_RegisterValue(tab: { any }, type)
+	local path = tab._path
 
-	for name, tab in pairs(checkpath) do
-		if split[index] == name then
-			if #split == index then
-				return tab, parents
-			else
-				parents[#parents + 1] = tab
-				return GetPathFromMethod(tab._paths, split, index + 1), parents
-			end
-		end
-	end
-end
-
-function App:_registerValue(tab: { any })
-	local split = tab._path:gsub("^/", ""):split("/")
-	local path, parents = GetPathFromMethod(self._paths, split, 1, { self._paths })
-
-	if not path then
-		path = self:_newPath(split[#split], path, parents)
+	if not self._paths[path] then
+		self:_NewPath(path, string.gsub(path, string.match(path, "/[%a%d]+$"), ""))
 	end
 
-	self:_addToPath(path, tab)
+	self:_AddPath(path, tab, type)
 end
 
 function App:get(...)
-	self:_registerValue(Methods.get(self, ...))
+	self:_RegisterValue(Methods.get(self, ...), "Method")
 end
 
 function App:post(...)
-	self:_registerValue(Methods.post(self, ...))
+	self:_RegisterValue(Methods.post(self, ...), "Method")
 end
 
 function App:delete(...)
-	self:_registerValue(Methods.delete(self, ...))
+	self:_RegisterValue(Methods.delete(self, ...), "Method")
 end
 
 function App:use(path: string, inst: any)
 	assert(path, "Need a valid path!")
 
-	if Router._is(inst) or type(inst) == "function" then
-		return self:_registerValue(Router._new(path, inst))
+	if type(inst) == "function" then
+		return self:_RegisterValue(Router.func(path, inst), "Router")
 	end
 end
 
