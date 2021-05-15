@@ -80,18 +80,13 @@ function Router.func(path, func)
 end
 
 function Router:_NewPath(path, parent)
-	if self._paths[path] then
-		return
-	end
+	assert(not self._paths[path], "Path is already made!")
 
 	local newpath = {
 		_router = Router._new(true, true),
 		_path = path,
+		_parent = parent,
 	}
-
-	if parent ~= "" then
-		newpath._parent = parent
-	end
 
 	self._paths[path] = newpath
 end
@@ -103,8 +98,7 @@ function Router:_AddPath(path, value, type)
 		return
 	end
 
-	local index = Index[type or value._type]
-	print(index)
+	local index = Index[type or value.Classname or value._type]
 	table.insert(self._paths[path]._router[index], value)
 end
 
@@ -123,7 +117,7 @@ end
 function Router:_GetParentMiddleware(path, middleware)
 	table.insert(middleware, 1, path._router)
 	if path._parent and self._paths[path._parent] then
-		Router:_GetParentMiddleware(self._paths[path._parent], middleware)
+		self:_GetParentMiddleware(self._paths[path._parent], middleware)
 	end
 end
 
@@ -140,13 +134,14 @@ function Router:_BuildPath(path, inst)
 	local parent = self:_BuildPath(path._parent, inst)
 
 	local middleware = {}
-
 	if self._paths[path._parent] then
 		self:_GetParentMiddleware(self._paths[path._parent], middleware)
 	end
 
 	local temp = Instance.new("RemoteFunction")
 	temp.Name = string.match(path._path, "[%a%d]+$")
+
+	temp:SetAttribute("PATH", path._path)
 
 	temp.OnServerInvoke = function(_, ...)
 		--TODO: Add Req, Res!
