@@ -7,6 +7,11 @@
 local Router = {}
 Router.__index = Router
 
+local t = require(script.Parent.t)
+
+local Request = require(script.Parent.Request)
+local Response = require(script.Parent.Response)
+
 local Runner
 do
 	local Runners = {
@@ -40,9 +45,9 @@ end
 local Index
 do
 	Index = {
-		Method = "_methods",
-		Router = "_routers",
-		["function"] = "_routers",
+		Method = "Method",
+		Router = "Router",
+		["function"] = "Router",
 	}
 end
 
@@ -55,11 +60,9 @@ function Router._new(child, values)
 			self._methods = {}
 			self._routers = {}
 			self._build = false
-		else
-			self._paths = {}
 		end
 
-		self.IsChild = child
+		self.IsChild = child or false
 	end
 
 	return self
@@ -70,6 +73,7 @@ function Router.new()
 end
 
 function Router.func(path, func)
+	assert(t.tuple(t.string, t.callback)(path, func))
 	local router = Router._new(false, false)
 
 	router._router = func
@@ -80,6 +84,7 @@ function Router.func(path, func)
 end
 
 function Router:_NewPath(path, parent)
+	assert(t.tuple(t.string, t.string)(path, parent))
 	assert(not self._paths[path], "Path is already made!")
 
 	local newpath = {
@@ -92,26 +97,33 @@ function Router:_NewPath(path, parent)
 end
 
 function Router:_AddPath(path, value, type)
+	assert(t.tuple(t.string, t.any, t.string)(path, value, type))
 	assert(not self.IsChild, "Cannot be called by a non app router!")
 
-	if not self._paths[path] or table.find(self._paths[path], value) then
+	path = self._paths[path]
+	if not path then
 		return
 	end
 
 	local index = Index[type or value.Classname or value._type]
-	table.insert(self._paths[path]._router[index], value)
+
+	if index == "Method" then
+		path._router._method = value
+	elseif index == "Router" then
+		table.insert(path._router._routers, value)
+	end
 end
 
 function Router:_HandleRouter(path, ...)
+	assert(t.table(path))
 	for _, router in pairs(self._routers) do
 		Runner(path, router, ...)
 	end
 end
 
 function Router:_HandleMethod(path, ...)
-	for _, method in pairs(self._methods) do
-		Runner(path, method, ...)
-	end
+	assert(t.table(path))
+	Runner(path, self._method, ...)
 end
 
 function Router:_GetParentMiddleware(path, middleware)
@@ -125,9 +137,7 @@ function Router:_BuildPath(path, inst)
 	path = self._paths[path]
 	if not path or not inst then
 		return
-	end
-
-	if path._build then
+	elseif path._build then
 		return path._remote
 	end
 
@@ -140,19 +150,29 @@ function Router:_BuildPath(path, inst)
 
 	local temp = Instance.new("RemoteFunction")
 	temp.Name = string.match(path._path, "[%a%d]+$")
-
-	temp:SetAttribute("PATH", path._path)
+	temp:SetAttribute("PATH")
 
 	temp.OnServerInvoke = function(_, ...)
 		--TODO: Add Req, Res!
+		local type = path._router._method and path._router._method._type
+		local req = Request._new(path._path, type or "GET", "tuple", ...)
+		local res = Response._new()
 
 		for _, router in pairs(middleware) do
-			router:_HandleRouter(path, ...)
+			router:_HandleRouter(path, req, res)
 		end
 
-		path._router:_HandleRouter(path, ...)
+		path._router:_HandleRouter(path, req, res)
 
-		path._router:_HandleMethod(path, ...)
+		path._router:_HandleMethod(path, req, res)
+
+		res:done()
+
+		return {
+			Status = res._status,
+			Succes = res._succes,
+			Body = res._param,
+		}
 	end
 
 	path._build = true
