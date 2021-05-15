@@ -9,8 +9,7 @@ local App = express.App
 
 local app = App.new()
 
-app:get("/Test", function(arg)
-	print(arg)
+app:get("/Test", function()
 end)
 
 app:post("/Test2", function()
@@ -21,12 +20,13 @@ app:delete("/Test/Test3", function()
 	print("Hello World!")
 end)
 
-app:use("/Test", function()
-	print("Middleware!")
+app:use("/Test", function(req, res)
+	print(req.Body)
+	res:status(200):send("Hello", "World", "!")
 end)
 
-app:use("/Test/Test3", function(arg)
-	print(arg)
+app:use("/Test/Test3", function(_, res)
+	print(res)
 end)
 
 app:Listen("Debug")
