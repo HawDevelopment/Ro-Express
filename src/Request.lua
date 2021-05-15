@@ -22,7 +22,7 @@ function Request:param(index: string | number, default: any?)
 	if self._paramstype == "table" then
 		return self.Body[index] or default
 	end
-	return default
+	return self
 end
 
 --TODO: Add requests to app!
