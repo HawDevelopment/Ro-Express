@@ -4,6 +4,7 @@
 	<Item class="Workspace" referent="RBX281346F522E6454FBECC9C18225C49DA">
 		<Properties>
 			<bool name="AllowThirdPartySales">false</bool>
+			<token name="AnimationWeightedBlendFix">0</token>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<token name="ClientAnimatorThrottling">0</token>
 			<string name="CollisionGroups">Default^0^1</string>
@@ -69,27 +70,27 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>58.9888039</X>
-					<Y>18.9627361</Y>
-					<Z>23.7229271</Z>
-					<R00>0.966034055</R00>
-					<R01>-0.0626726151</R01>
-					<R02>0.250699937</R02>
-					<R10>-0</R10>
-					<R11>0.970144689</R11>
-					<R12>0.242526948</R12>
-					<R20>-0.258415043</R20>
-					<R21>-0.234289289</R21>
-					<R22>0.937192678</R22>
+					<X>76.227478</X>
+					<Y>20.9102497</Y>
+					<Z>26.4985237</Z>
+					<R00>0.253551781</R00>
+					<R01>-0.127193794</R01>
+					<R02>0.958922982</R02>
+					<R10>-3.7252903e-09</R10>
+					<R11>0.991317451</R11>
+					<R12>0.131490663</R12>
+					<R20>-0.967321873</R20>
+					<R21>-0.0333396941</R21>
+					<R22>0.251350313</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>58.4874039</X>
-					<Y>18.4776821</Y>
-					<Z>21.8485413</Z>
+					<X>74.3096313</X>
+					<Y>20.6472683</Y>
+					<Z>25.9958229</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -696,7 +697,6 @@ local App = express.App
 local app = App.new()
 
 app:get("/Test", function()
-	print("Hello World!")
 end)
 
 app:post("/Test2", function()
@@ -704,8 +704,18 @@ app:post("/Test2", function()
 end)
 
 app:delete("/Test/Test3", function()
-	print("Why do i even try?")
+	print("Hello World!")
 end)
+
+app:use("/Test", function(req, res)
+	print(req.Body)
+	res:status(200):send("Hello", "World", "!")
+end)
+
+app:use("/Test/Test3", function(_, res)
+	print(res)
+end)
+
 app:Listen("Debug")
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
@@ -735,10 +745,11 @@ return function()
 			expect(app).to.be.a("table")
 		end)
 
-		it("should have alle the components of an app", function()
+		it("should have all the components of an app", function()
 			local app = App.new()
 			expect(app._methods).to.be.a("table")
 			expect(app._newitem.Classname).to.be.equal("Signal")
+			app:Destroy()
 		end)
 	end)
 
@@ -749,6 +760,7 @@ return function()
 
 			app = App.new()
 			expect(app:Listen("ShouldReturnFolder"):IsA("Folder")).to.be.ok()
+			app:Destroy()
 		end)
 
 		it("should make a tree of remotes", function()
@@ -762,15 +774,17 @@ return function()
 				print("Foo Bar Baz")
 			end)
 
-			app:get("/Test2", function()
+			app:get("/Test3", function()
 				print("Why do I even try?")
 			end)
 
 			app:Listen("ShouldMakeTree")
+			expect(#app._root:GetDescendants() > 2).to.be.ok()
+			app:Destroy()
 		end)
 	end)
 
-	describe("App:get", function()
+	describe("App:Method", function()
 		local app = App.new()
 
 		it("should handle a get request", function()
@@ -792,6 +806,43 @@ return function()
 				app:Listen("ShouldBuild")
 			end).never.to.be.throw()
 		end)
+
+		app:Destroy()
+	end)
+
+	describe("App:use", function()
+		it("should build with out problems", function()
+			local app = App.new()
+
+			expect(function()
+				app:get("/Test", function()
+					print("Hello World!")
+				end)
+
+				app:use("/Test", function()
+					print("Middleware!")
+				end)
+
+				app:Listen("AppUseShouldNotError")
+				app:Destroy()
+			end).to.never.be.throw()
+		end)
+
+		it("should have all the components necesary", function()
+			local app = App.new()
+
+			app:get("/Test", function()
+				print("Hello World!")
+			end)
+
+			local router = app:use("/Test", function()
+				print("Middleware!")
+			end)
+
+			expect(router).to.be.an("table")
+			expect(router._path).to.be.an("string")
+			expect(router._router).to.be.an("function")
+		end)
 	end)
 end
 ]]></ProtectedString>
@@ -799,6 +850,30 @@ end
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
+			</Item>
+			<Item class="Folder" referent="RBX2EA79ECB6EFA4E0D9031E4A2F0796C0C">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Response</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBX4094692D55464B7AA0C3A6095F3AC9BF">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Methods</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBXF88AD91C97F54504A7B2C2806F3CB118">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Request</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
 			</Item>
 		</Item>
 	</Item>
@@ -843,113 +918,109 @@ end
     5/11/2021
 --]]
 
-local Signal = require(script.Parent.Signal)
 local Methods = require(script.Parent.Methods)
+local Router = require(script.Parent.Router)
+
+local t = require(script.Parent.t)
 
 local App = {}
 App.__index = App
 
 function App.new()
 	local self = setmetatable({}, App)
-	
-	self._paths = {}
-	self._methods = {}
-	self._name = {}
-	self._newitem = Signal.new()
 
-	self._newitem:Connect(function(path)
-		
-		if self._root then
-			self:_listenOnPath(path, self._root)
-		end
-	end)
+	self._paths = {}
+	self._router = Router._new(false, false)
+
+	self._router._paths = {}
 
 	return self
 end
 
-function App:_newPath(path)
-	assert(path, "Need a valid path")
-	if self._paths[path] then
-		return
-	end
-	
-	self._paths[path] = {}
+function App:_NewPath(path, parentpath)
+	assert(t.tuple(t.string, t.string)(path, parentpath))
+
+	self._paths[path] = path
+	self._router:_NewPath(path, parentpath)
 end
 
-function App:_addToPath(path,value)
-	
-	if self._paths[path] then
-		
-		table.insert(self._paths[path], value)
-		self._newitem:Fire(path)
-	end
-	
+function App:_AddPath(path, value, type)
+	assert(t.tuple(t.string, t.any, t.string)(path, value, type))
+
+	self._router:_AddPath(path, value, type)
 end
 
-function App:_listenOnPath(path, parent)
-	
-	for _, method in pairs(path) do
-		
-		if not method._build then
-			method:Build(parent)
-		end
-	end
+function App:_ListenPath(path, inst)
+	assert(t.tuple(t.string, t.any)(path, inst))
+	self._router:_BuildPath(path, inst)
 end
 
 function App:Listen(name: string | number)
+	assert(t.union(t.string, t.number)(name))
+	assert(not self._root, "Cannot build an app already built!")
+
 	self._name = assert(name, "Expected a name!")
-	if self._root or self._build then
-		return
-	end
 
-	local Root = Instance.new("Folder")
-	Root.Name = name
+	self._root = Instance.new("Folder")
+	self._root.Name = name
 
-	print(self._paths)
+	print(self._router)
 	for _, path in pairs(self._paths) do
-		
-		self:_listenOnPath(path, Root)
+		self:_ListenPath(path, self._root)
 	end
 
-	Root.Parent = game:GetService("ReplicatedStorage")
-	self._root = Root
+	self._root.Parent = game:GetService("ReplicatedStorage")
 
-	return Root
+	return self._root
 end
 
-function App:_registerMethod(method)
-	
-	if not self._paths[method._path] then
-		self:_newPath(method._path)
+function App:_RegisterValue(tab: { any }, type)
+	assert(t.tuple(t.table, t.string)(tab, type))
+	local path = tab._path
+
+	if not self._paths[path] then
+		local pathname = string.match(path, "/[%a%d]+$")
+		self:_NewPath(path, string.gsub(path, pathname, ""))
 	end
-	
-	self:_addToPath(method._path,method)
+
+	self:_AddPath(path, tab, type)
 end
 
 function App:get(...)
-	self:_registerMethod(Methods.get(self, ...))
+	assert(t.tuple(t.string, t.callback)(...))
+	self:_RegisterValue(Methods.get(self, ...), "Method")
 end
 
 function App:post(...)
-	self:_registerMethod(Methods.post(self, ...))
+	assert(t.tuple(t.string, t.callback)(...))
+	self:_RegisterValue(Methods.post(self, ...), "Method")
 end
 
 function App:delete(...)
-	self:_registerMethod(Methods.delete(self, ...))
+	assert(t.tuple(t.string, t.callback)(...))
+	self:_RegisterValue(Methods.delete(self, ...), "Method")
+end
+
+function App:use(path: string, inst: any)
+	assert(t.tuple(t.string, t.any)(path, inst))
+
+	--TODO: Add support for routers
+	if type(inst) == "function" then
+		return self:_RegisterValue(Router.func(path, inst), "Router")
+	end
 end
 
 function App:Destroy()
-	
 	self._newitem:Destroy()
-	
+
 	if self._root then
 		self._root:Destroy()
 	end
-	
+
 	table.clear(self)
-	setmetatable(self, {__index = function()
-		error("This App is destroyed!",2)
-	end})
+	setmetatable(self, { __index = function()
+		error("This App is destroyed!", 2)
+	end })
 end
 
 return App
@@ -972,6 +1043,12 @@ return App
 
 local Methods = {}
 Methods.__index = Methods
+
+Methods.Classname = "Method"
+
+function Methods:_run(method, ...)
+	return method._callback(...)
+end
 
 function Methods._new(type: string, path: string, callback: (any) -> any)
 	local self = setmetatable({}, Methods)
@@ -1011,6 +1088,7 @@ function Methods:Build(parent: Folder)
 			else
 				temp = Methods.newInstance(curr, split[i], "RemoteFunction")
 				Methods.setAttributes(temp, self._type, self._path)
+				curr = temp
 			end
 		end
 	end
@@ -1019,8 +1097,8 @@ function Methods:Build(parent: Folder)
 		curr.OnServerInvoke = self._callback
 	end
 
-    self._build = true
-	return parent
+	self._build = true
+	return curr
 end
 
 function Methods.get(_, path, callback)
@@ -1056,7 +1134,36 @@ return Methods
 					<Content name="LinkedSource"><null></null></Content>
 					<string name="Name">Request</string>
 					<string name="ScriptGuid">{DDAFFF4C-E54D-4277-8AB1-79555E55D0E9}</string>
-					<ProtectedString name="Source"><![CDATA[return {}
+					<ProtectedString name="Source"><![CDATA[--[[
+    Request Class
+    HawDevelopment
+    15/05/2021
+--]]
+
+local Request = {}
+Request.__index = Request
+
+function Request._new(path, type, paramstype, ...)
+	local self = setmetatable({}, Request)
+
+	self._paramstype = paramstype
+	self.Body = paramstype == "table" and table.pack(...)[1] or table.pack(...)
+	self.Method = type
+	self.Path = path
+
+	return self
+end
+
+function Request:param(index: string | number, default: any?)
+	if self._paramstype == "table" then
+		return self.Body[index] or default
+	end
+	return self
+end
+
+--TODO: Add requests to app!
+
+return Request
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
@@ -1068,7 +1175,57 @@ return Methods
 					<Content name="LinkedSource"><null></null></Content>
 					<string name="Name">Response</string>
 					<string name="ScriptGuid">{FD8D1EF4-F4E7-4BAD-BFF5-834251659750}</string>
-					<ProtectedString name="Source"><![CDATA[return {}
+					<ProtectedString name="Source"><![CDATA[--[[
+    Response class
+    HawDevelopment
+    15/05/2021
+--]]
+
+local Response = {}
+Response.__index = Response
+
+function Response._new(default)
+	local self = setmetatable({}, Response)
+
+	self.Locals = {}
+	self._param = default or {}
+
+	self._status = 200
+	self._succes = true
+
+	self._done = false
+
+	return self
+end
+
+function Response:done()
+	self._done = true
+	return self
+end
+
+function Response:send(...)
+	if not self._done then
+		self._params = table.pack(...)
+	end
+
+	return self
+end
+
+function Response:status(status: number)
+	if not self._done then
+		local start = tostring(status):match("^%d")
+		if start == "4" or start == "5" then
+			self._succes = false
+		elseif start == "2" then
+			self._succes = true
+		end
+
+		self._status = status or 200
+	end
+	return self
+end
+
+return Response
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
@@ -1248,6 +1405,1397 @@ function Signal:Destroy()
 end
 
 return Signal
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="ModuleScript" referent="RBX4DC1C65560DC4390AADA54D7ABFDB8EE">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Router</string>
+					<string name="ScriptGuid">{831C3C8D-7B1B-47A1-AAE7-FA7B625343EA}</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+    Router Class
+    HawDevelopment
+    12/05/2021
+--]]
+
+local Router = {}
+Router.__index = Router
+
+local t = require(script.Parent.t)
+
+local Request = require(script.Parent.Request)
+local Response = require(script.Parent.Response)
+
+local Runner
+do
+	local Runners = {
+		["function"] = function(_, inst, ...)
+			return inst._router(...)
+		end,
+		["Router"] = function(_, inst, ...)
+			--TODO: Add more features!
+			return inst._router(...)
+		end,
+		["Method"] = function(_, inst, ...)
+			return inst._callback(...)
+		end,
+	}
+
+	Runner = function(path, inst, ...)
+		-- For methods, since they already have a value assigned to _type (Get or Post etc.)
+		if Runners[inst.Classname] then
+			return Runners[inst.Classname](path, inst, ...)
+		else
+			-- We didnt find the type, then we need to guess
+			if Runners[type(inst._router)] then
+				return Runners[type(inst._router)](path, inst, ...)
+			elseif Runners[inst._type] then
+				return Runners[inst._type](path, inst, ...)
+			end
+		end
+	end
+end
+
+local Index
+do
+	Index = {
+		Method = "Method",
+		Router = "Router",
+		["function"] = "Router",
+	}
+end
+
+function Router._new(child, values)
+	values = values or true
+	local self = setmetatable({}, Router)
+
+	if values then
+		if child then
+			self._methods = {}
+			self._routers = {}
+			self._build = false
+		end
+
+		self.IsChild = child or false
+	end
+
+	return self
+end
+
+function Router.new()
+	return Router._new(false, true)
+end
+
+function Router.func(path, func)
+	assert(t.tuple(t.string, t.callback)(path, func))
+	local router = Router._new(false, false)
+
+	router._router = func
+	router._path = path
+	router._type = "function"
+
+	return router
+end
+
+function Router:_NewPath(path, parent)
+	assert(t.tuple(t.string, t.string)(path, parent))
+	assert(not self._paths[path], "Path is already made!")
+
+	local newpath = {
+		_router = Router._new(true, true),
+		_path = path,
+		_parent = parent,
+	}
+
+	self._paths[path] = newpath
+end
+
+function Router:_AddPath(path, value, type)
+	assert(t.tuple(t.string, t.any, t.string)(path, value, type))
+	assert(not self.IsChild, "Cannot be called by a non app router!")
+
+	path = self._paths[path]
+	if not path then
+		return
+	end
+
+	local index = Index[type or value.Classname or value._type]
+
+	if index == "Method" then
+		path._router._method = value
+	elseif index == "Router" then
+		table.insert(path._router._routers, value)
+	end
+end
+
+function Router:_HandleRouter(path, ...)
+	assert(t.table(path))
+	for _, router in pairs(self._routers) do
+		Runner(path, router, ...)
+	end
+end
+
+function Router:_HandleMethod(path, ...)
+	assert(t.table(path))
+	Runner(path, self._method, ...)
+end
+
+function Router:_GetParentMiddleware(path, middleware)
+	table.insert(middleware, 1, path._router)
+	if path._parent and self._paths[path._parent] then
+		self:_GetParentMiddleware(self._paths[path._parent], middleware)
+	end
+end
+
+function Router:_BuildPath(path, inst)
+	path = self._paths[path]
+	if not path or not inst then
+		return
+	elseif path._build then
+		return path._remote
+	end
+
+	local parent = self:_BuildPath(path._parent, inst)
+
+	local middleware = {}
+	if self._paths[path._parent] then
+		self:_GetParentMiddleware(self._paths[path._parent], middleware)
+	end
+
+	local temp = Instance.new("RemoteFunction")
+	temp.Name = string.match(path._path, "[%a%d]+$")
+	temp:SetAttribute("PATH")
+
+	temp.OnServerInvoke = function(_, ...)
+		--TODO: Add Req, Res!
+		local type = path._router._method and path._router._method._type
+		local req = Request._new(path._path, type or "GET", "tuple", ...)
+		local res = Response._new()
+
+		for _, router in pairs(middleware) do
+			router:_HandleRouter(path, req, res)
+		end
+
+		path._router:_HandleRouter(path, req, res)
+
+		path._router:_HandleMethod(path, req, res)
+
+		res:done()
+
+		return {
+			Status = res._status,
+			Succes = res._succes,
+			Body = res._param,
+		}
+	end
+
+	path._build = true
+	path._remote = temp
+	temp.Parent = parent or inst
+
+	return temp
+end
+
+return Router
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="ModuleScript" referent="RBXAE08F4793D404CEB9CF404D3878ABB7A">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">t</string>
+					<string name="ScriptGuid">{A80EC5A9-2AE6-4A83-9434-36EEF890C115}</string>
+					<ProtectedString name="Source"><![CDATA[-- t: a runtime typechecker for Roblox
+
+-- regular lua compatibility
+local typeof = typeof or type
+
+local function primitive(typeName)
+	return function(value)
+		local valueType = typeof(value)
+		if valueType == typeName then
+			return true
+		else
+			return false, string.format("%s expected, got %s", typeName, valueType)
+		end
+	end
+end
+
+local t = {}
+
+--[[**
+	matches any type except nil
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+function t.any(value)
+	if value ~= nil then
+		return true
+	else
+		return false, "any expected, got nil"
+	end
+end
+
+--Lua primitives
+
+--[[**
+	ensures Lua primitive boolean type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.boolean = primitive("boolean")
+
+--[[**
+	ensures Lua primitive thread type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.thread = primitive("thread")
+
+--[[**
+	ensures Lua primitive callback type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.callback = primitive("function")
+t["function"] = t.callback
+
+--[[**
+	ensures Lua primitive none type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.none = primitive("nil")
+t["nil"] = t.none
+
+--[[**
+	ensures Lua primitive string type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.string = primitive("string")
+
+--[[**
+	ensures Lua primitive table type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.table = primitive("table")
+
+--[[**
+	ensures Lua primitive userdata type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.userdata = primitive("userdata")
+
+--[[**
+	ensures value is a number and non-NaN
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+function t.number(value)
+	local valueType = typeof(value)
+	if valueType == "number" then
+		if value == value then
+			return true
+		else
+			return false, "unexpected NaN value"
+		end
+	else
+		return false, string.format("number expected, got %s", valueType)
+	end
+end
+
+--[[**
+	ensures value is NaN
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+function t.nan(value)
+	if value ~= value then
+		return true
+	else
+		return false, "unexpected non-NaN value"
+	end
+end
+
+-- roblox types
+
+--[[**
+	ensures Roblox Axes type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Axes = primitive("Axes")
+
+--[[**
+	ensures Roblox BrickColor type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.BrickColor = primitive("BrickColor")
+
+--[[**
+	ensures Roblox CFrame type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.CFrame = primitive("CFrame")
+
+--[[**
+	ensures Roblox Color3 type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Color3 = primitive("Color3")
+
+--[[**
+	ensures Roblox ColorSequence type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.ColorSequence = primitive("ColorSequence")
+
+--[[**
+	ensures Roblox ColorSequenceKeypoint type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.ColorSequenceKeypoint = primitive("ColorSequenceKeypoint")
+
+--[[**
+	ensures Roblox DockWidgetPluginGuiInfo type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.DockWidgetPluginGuiInfo = primitive("DockWidgetPluginGuiInfo")
+
+--[[**
+	ensures Roblox Faces type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Faces = primitive("Faces")
+
+--[[**
+	ensures Roblox Instance type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Instance = primitive("Instance")
+
+--[[**
+	ensures Roblox NumberRange type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.NumberRange = primitive("NumberRange")
+
+--[[**
+	ensures Roblox NumberSequence type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.NumberSequence = primitive("NumberSequence")
+
+--[[**
+	ensures Roblox NumberSequenceKeypoint type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.NumberSequenceKeypoint = primitive("NumberSequenceKeypoint")
+
+--[[**
+	ensures Roblox PathWaypoint type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.PathWaypoint = primitive("PathWaypoint")
+
+--[[**
+	ensures Roblox PhysicalProperties type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.PhysicalProperties = primitive("PhysicalProperties")
+
+--[[**
+	ensures Roblox Random type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Random = primitive("Random")
+
+--[[**
+	ensures Roblox Ray type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Ray = primitive("Ray")
+
+--[[**
+	ensures Roblox Rect type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Rect = primitive("Rect")
+
+--[[**
+	ensures Roblox Region3 type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Region3 = primitive("Region3")
+
+--[[**
+	ensures Roblox Region3int16 type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Region3int16 = primitive("Region3int16")
+
+--[[**
+	ensures Roblox TweenInfo type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.TweenInfo = primitive("TweenInfo")
+
+--[[**
+	ensures Roblox UDim type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.UDim = primitive("UDim")
+
+--[[**
+	ensures Roblox UDim2 type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.UDim2 = primitive("UDim2")
+
+--[[**
+	ensures Roblox Vector2 type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Vector2 = primitive("Vector2")
+
+--[[**
+	ensures Roblox Vector3 type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Vector3 = primitive("Vector3")
+
+--[[**
+	ensures Roblox Vector3int16 type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Vector3int16 = primitive("Vector3int16")
+
+-- roblox enum types
+
+--[[**
+	ensures Roblox Enum type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.Enum = primitive("Enum")
+
+--[[**
+	ensures Roblox EnumItem type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.EnumItem = primitive("EnumItem")
+
+--[[**
+	ensures Roblox RBXScriptSignal type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.RBXScriptSignal = primitive("RBXScriptSignal")
+
+--[[**
+	ensures Roblox RBXScriptConnection type
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+t.RBXScriptConnection = primitive("RBXScriptConnection")
+
+--[[**
+	ensures value is a given literal value
+
+	@param literal The literal to use
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.literal(...)
+	local size = select("#", ...)
+	if size == 1 then
+		local literal = ...
+		return function(value)
+			if value ~= literal then
+				return false, string.format("expected %s, got %s", tostring(literal), tostring(value))
+			end
+
+			return true
+		end
+	else
+		local literals = {}
+		for i = 1, size do
+			local value = select(i, ...)
+			literals[i] = t.literal(value)
+		end
+
+		return t.union(table.unpack(literals, 1, size))
+	end
+end
+
+--[[**
+	DEPRECATED
+	Please use t.literal
+**--]]
+t.exactly = t.literal
+
+--[[**
+	Returns a t.union of each key in the table as a t.literal
+
+	@param keyTable The table to get keys from
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+function t.keyOf(keyTable)
+	local keys = {}
+	local length = 0
+	for key in pairs(keyTable) do
+		length = length + 1
+		keys[length] = key
+	end
+
+	return t.literal(table.unpack(keys, 1, length))
+end
+
+--[[**
+	Returns a t.union of each value in the table as a t.literal
+
+	@param valueTable The table to get values from
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+function t.valueOf(valueTable)
+	local values = {}
+	local length = 0
+	for _, value in pairs(valueTable) do
+		length = length + 1
+		values[length] = value
+	end
+
+	return t.literal(table.unpack(values, 1, length))
+end
+
+--[[**
+	ensures value is an integer
+
+	@param value The value to check against
+
+	@returns True iff the condition is satisfied, false otherwise
+**--]]
+function t.integer(value)
+	local success, errMsg = t.number(value)
+	if not success then
+		return false, errMsg or ""
+	end
+
+	if value % 1 == 0 then
+		return true
+	else
+		return false, string.format("integer expected, got %s", value)
+	end
+end
+
+--[[**
+	ensures value is a number where min <= value
+
+	@param min The minimum to use
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.numberMin(min)
+	return function(value)
+		local success, errMsg = t.number(value)
+		if not success then
+			return false, errMsg or ""
+		end
+
+		if value >= min then
+			return true
+		else
+			return false, string.format("number >= %s expected, got %s", min, value)
+		end
+	end
+end
+
+--[[**
+	ensures value is a number where value <= max
+
+	@param max The maximum to use
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.numberMax(max)
+	return function(value)
+		local success, errMsg = t.number(value)
+		if not success then
+			return false, errMsg
+		end
+
+		if value <= max then
+			return true
+		else
+			return false, string.format("number <= %s expected, got %s", max, value)
+		end
+	end
+end
+
+--[[**
+	ensures value is a number where min < value
+
+	@param min The minimum to use
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.numberMinExclusive(min)
+	return function(value)
+		local success, errMsg = t.number(value)
+		if not success then
+			return false, errMsg or ""
+		end
+
+		if min < value then
+			return true
+		else
+			return false, string.format("number > %s expected, got %s", min, value)
+		end
+	end
+end
+
+--[[**
+	ensures value is a number where value < max
+
+	@param max The maximum to use
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.numberMaxExclusive(max)
+	return function(value)
+		local success, errMsg = t.number(value)
+		if not success then
+			return false, errMsg or ""
+		end
+
+		if value < max then
+			return true
+		else
+			return false, string.format("number < %s expected, got %s", max, value)
+		end
+	end
+end
+
+--[[**
+	ensures value is a number where value > 0
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+t.numberPositive = t.numberMinExclusive(0)
+
+--[[**
+	ensures value is a number where value < 0
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+t.numberNegative = t.numberMaxExclusive(0)
+
+--[[**
+	ensures value is a number where min <= value <= max
+
+	@param min The minimum to use
+	@param max The maximum to use
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.numberConstrained(min, max)
+	assert(t.number(min))
+	assert(t.number(max))
+	local minCheck = t.numberMin(min)
+	local maxCheck = t.numberMax(max)
+
+	return function(value)
+		local minSuccess, minErrMsg = minCheck(value)
+		if not minSuccess then
+			return false, minErrMsg or ""
+		end
+
+		local maxSuccess, maxErrMsg = maxCheck(value)
+		if not maxSuccess then
+			return false, maxErrMsg or ""
+		end
+
+		return true
+	end
+end
+
+--[[**
+	ensures value is a number where min < value < max
+
+	@param min The minimum to use
+	@param max The maximum to use
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.numberConstrainedExclusive(min, max)
+	assert(t.number(min))
+	assert(t.number(max))
+	local minCheck = t.numberMinExclusive(min)
+	local maxCheck = t.numberMaxExclusive(max)
+
+	return function(value)
+		local minSuccess, minErrMsg = minCheck(value)
+		if not minSuccess then
+			return false, minErrMsg or ""
+		end
+
+		local maxSuccess, maxErrMsg = maxCheck(value)
+		if not maxSuccess then
+			return false, maxErrMsg or ""
+		end
+
+		return true
+	end
+end
+
+--[[**
+	ensures value matches string pattern
+
+	@param string pattern to check against
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.match(pattern)
+	assert(t.string(pattern))
+	return function(value)
+		local stringSuccess, stringErrMsg = t.string(value)
+		if not stringSuccess then
+			return false, stringErrMsg
+		end
+
+		if string.match(value, pattern) == nil then
+			return false, string.format("%q failed to match pattern %q", value, pattern)
+		end
+
+		return true
+	end
+end
+
+--[[**
+	ensures value is either nil or passes check
+
+	@param check The check to use
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.optional(check)
+	assert(t.callback(check))
+	return function(value)
+		if value == nil then
+			return true
+		end
+
+		local success, errMsg = check(value)
+		if success then
+			return true
+		else
+			return false, string.format("(optional) %s", errMsg or "")
+		end
+	end
+end
+
+--[[**
+	matches given tuple against tuple type definition
+
+	@param ... The type definition for the tuples
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.tuple(...)
+	local checks = { ... }
+	return function(...)
+		local args = { ... }
+		for i, check in ipairs(checks) do
+			local success, errMsg = check(args[i])
+			if success == false then
+				return false, string.format("Bad tuple index #%s:\n\t%s", i, errMsg or "")
+			end
+		end
+
+		return true
+	end
+end
+
+--[[**
+	ensures all keys in given table pass check
+
+	@param check The function to use to check the keys
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.keys(check)
+	assert(t.callback(check))
+	return function(value)
+		local tableSuccess, tableErrMsg = t.table(value)
+		if tableSuccess == false then
+			return false, tableErrMsg or ""
+		end
+
+		for key in pairs(value) do
+			local success, errMsg = check(key)
+			if success == false then
+				return false, string.format("bad key %s:\n\t%s", tostring(key), errMsg or "")
+			end
+		end
+
+		return true
+	end
+end
+
+--[[**
+	ensures all values in given table pass check
+
+	@param check The function to use to check the values
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.values(check)
+	assert(t.callback(check))
+	return function(value)
+		local tableSuccess, tableErrMsg = t.table(value)
+		if tableSuccess == false then
+			return false, tableErrMsg or ""
+		end
+
+		for key, val in pairs(value) do
+			local success, errMsg = check(val)
+			if success == false then
+				return false, string.format("bad value for key %s:\n\t%s", tostring(key), errMsg or "")
+			end
+		end
+
+		return true
+	end
+end
+
+--[[**
+	ensures value is a table and all keys pass keyCheck and all values pass valueCheck
+
+	@param keyCheck The function to use to check the keys
+	@param valueCheck The function to use to check the values
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.map(keyCheck, valueCheck)
+	assert(t.callback(keyCheck))
+	assert(t.callback(valueCheck))
+	local keyChecker = t.keys(keyCheck)
+	local valueChecker = t.values(valueCheck)
+
+	return function(value)
+		local keySuccess, keyErr = keyChecker(value)
+		if not keySuccess then
+			return false, keyErr or ""
+		end
+
+		local valueSuccess, valueErr = valueChecker(value)
+		if not valueSuccess then
+			return false, valueErr or ""
+		end
+
+		return true
+	end
+end
+
+--[[**
+	ensures value is a table and all keys pass valueCheck and all values are true
+
+	@param valueCheck The function to use to check the values
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.set(valueCheck)
+	return t.map(valueCheck, t.literal(true))
+end
+
+do
+	local arrayKeysCheck = t.keys(t.integer)
+	--[[**
+		ensures value is an array and all values of the array match check
+
+		@param check The check to compare all values with
+
+		@returns A function that will return true iff the condition is passed
+	**--]]
+	function t.array(check)
+		assert(t.callback(check))
+		local valuesCheck = t.values(check)
+
+		return function(value)
+			local keySuccess, keyErrMsg = arrayKeysCheck(value)
+			if keySuccess == false then
+				return false, string.format("[array] %s", keyErrMsg or "")
+			end
+
+			-- # is unreliable for sparse arrays
+			-- Count upwards using ipairs to avoid false positives from the behavior of #
+			local arraySize = 0
+
+			for _ in ipairs(value) do
+				arraySize = arraySize + 1
+			end
+
+			for key in pairs(value) do
+				if key < 1 or key > arraySize then
+					return false, string.format("[array] key %s must be sequential", tostring(key))
+				end
+			end
+
+			local valueSuccess, valueErrMsg = valuesCheck(value)
+			if not valueSuccess then
+				return false, string.format("[array] %s", valueErrMsg or "")
+			end
+
+			return true
+		end
+	end
+
+	--[[**
+		ensures value is an array of a strict makeup and size
+
+		@param check The check to compare all values with
+
+		@returns A function that will return true iff the condition is passed
+	**--]]
+	function t.strictArray(...)
+		local valueTypes = { ... }
+		assert(t.array(t.callback)(valueTypes))
+
+		return function(value)
+			local keySuccess, keyErrMsg = arrayKeysCheck(value)
+			if keySuccess == false then
+				return false, string.format("[strictArray] %s", keyErrMsg or "")
+			end
+
+			-- If there's more than the set array size, disallow
+			if #valueTypes < #value then
+				return false, string.format("[strictArray] Array size exceeds limit of %d", #valueTypes)
+			end
+
+			for idx, typeFn in pairs(valueTypes) do
+				local typeSuccess, typeErrMsg = typeFn(value[idx])
+				if not typeSuccess then
+					return false, string.format("[strictArray] Array index #%d - %s", idx, typeErrMsg)
+				end
+			end
+
+			return true
+		end
+	end
+end
+
+do
+	local callbackArray = t.array(t.callback)
+	--[[**
+		creates a union type
+
+		@param ... The checks to union
+
+		@returns A function that will return true iff the condition is passed
+	**--]]
+	function t.union(...)
+		local checks = { ... }
+		assert(callbackArray(checks))
+
+		return function(value)
+			for _, check in ipairs(checks) do
+				if check(value) then
+					return true
+				end
+			end
+
+			return false, "bad type for union"
+		end
+	end
+
+	--[[**
+		Alias for t.union
+	**--]]
+	t.some = t.union
+
+	--[[**
+		creates an intersection type
+
+		@param ... The checks to intersect
+
+		@returns A function that will return true iff the condition is passed
+	**--]]
+	function t.intersection(...)
+		local checks = { ... }
+		assert(callbackArray(checks))
+
+		return function(value)
+			for _, check in ipairs(checks) do
+				local success, errMsg = check(value)
+				if not success then
+					return false, errMsg or ""
+				end
+			end
+
+			return true
+		end
+	end
+
+	--[[**
+		Alias for t.intersection
+	**--]]
+	t.every = t.intersection
+end
+
+do
+	local checkInterface = t.map(t.any, t.callback)
+	--[[**
+		ensures value matches given interface definition
+
+		@param checkTable The interface definition
+
+		@returns A function that will return true iff the condition is passed
+	**--]]
+	function t.interface(checkTable)
+		assert(checkInterface(checkTable))
+		return function(value)
+			local tableSuccess, tableErrMsg = t.table(value)
+			if tableSuccess == false then
+				return false, tableErrMsg or ""
+			end
+
+			for key, check in pairs(checkTable) do
+				local success, errMsg = check(value[key])
+				if success == false then
+					return false, string.format("[interface] bad value for %s:\n\t%s", tostring(key), errMsg or "")
+				end
+			end
+
+			return true
+		end
+	end
+
+	--[[**
+		ensures value matches given interface definition strictly
+
+		@param checkTable The interface definition
+
+		@returns A function that will return true iff the condition is passed
+	**--]]
+	function t.strictInterface(checkTable)
+		assert(checkInterface(checkTable))
+		return function(value)
+			local tableSuccess, tableErrMsg = t.table(value)
+			if tableSuccess == false then
+				return false, tableErrMsg or ""
+			end
+
+			for key, check in pairs(checkTable) do
+				local success, errMsg = check(value[key])
+				if success == false then
+					return false, string.format("[interface] bad value for %s:\n\t%s", tostring(key), errMsg or "")
+				end
+			end
+
+			for key in pairs(value) do
+				if not checkTable[key] then
+					return false, string.format("[interface] unexpected field %q", tostring(key))
+				end
+			end
+
+			return true
+		end
+	end
+end
+
+--[[**
+	ensure value is an Instance and it's ClassName matches the given ClassName
+
+	@param className The class name to check for
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.instanceOf(className, childTable)
+	assert(t.string(className))
+
+	local childrenCheck
+	if childTable ~= nil then
+		childrenCheck = t.children(childTable)
+	end
+
+	return function(value)
+		local instanceSuccess, instanceErrMsg = t.Instance(value)
+		if not instanceSuccess then
+			return false, instanceErrMsg or ""
+		end
+
+		if value.ClassName ~= className then
+			return false, string.format("%s expected, got %s", className, value.ClassName)
+		end
+
+		if childrenCheck then
+			local childrenSuccess, childrenErrMsg = childrenCheck(value)
+			if not childrenSuccess then
+				return false, childrenErrMsg
+			end
+		end
+
+		return true
+	end
+end
+
+t.instance = t.instanceOf
+
+--[[**
+	ensure value is an Instance and it's ClassName matches the given ClassName by an IsA comparison
+
+	@param className The class name to check for
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.instanceIsA(className, childTable)
+	assert(t.string(className))
+
+	local childrenCheck
+	if childTable ~= nil then
+		childrenCheck = t.children(childTable)
+	end
+
+	return function(value)
+		local instanceSuccess, instanceErrMsg = t.Instance(value)
+		if not instanceSuccess then
+			return false, instanceErrMsg or ""
+		end
+
+		if not value:IsA(className) then
+			return false, string.format("%s expected, got %s", className, value.ClassName)
+		end
+
+		if childrenCheck then
+			local childrenSuccess, childrenErrMsg = childrenCheck(value)
+			if not childrenSuccess then
+				return false, childrenErrMsg
+			end
+		end
+
+		return true
+	end
+end
+
+--[[**
+	ensures value is an enum of the correct type
+
+	@param enum The enum to check
+
+	@returns A function that will return true iff the condition is passed
+**--]]
+function t.enum(enum)
+	assert(t.Enum(enum))
+	return function(value)
+		local enumItemSuccess, enumItemErrMsg = t.EnumItem(value)
+		if not enumItemSuccess then
+			return false, enumItemErrMsg
+		end
+
+		if value.EnumType == enum then
+			return true
+		else
+			return false, string.format("enum of %s expected, got enum of %s", tostring(enum), tostring(value.EnumType))
+		end
+	end
+end
+
+do
+	local checkWrap = t.tuple(t.callback, t.callback)
+
+	--[[**
+		wraps a callback in an assert with checkArgs
+
+		@param callback The function to wrap
+		@param checkArgs The functon to use to check arguments in the assert
+
+		@returns A function that first asserts using checkArgs and then calls callback
+	**--]]
+	function t.wrap(callback, checkArgs)
+		assert(checkWrap(callback, checkArgs))
+		return function(...)
+			assert(checkArgs(...))
+			return callback(...)
+		end
+	end
+end
+
+--[[**
+	asserts a given check
+
+	@param check The function to wrap with an assert
+
+	@returns A function that simply wraps the given check in an assert
+**--]]
+function t.strict(check)
+	return function(...)
+		assert(check(...))
+	end
+end
+
+do
+	local checkChildren = t.map(t.string, t.callback)
+
+	--[[**
+		Takes a table where keys are child names and values are functions to check the children against.
+		Pass an instance tree into the function.
+		If at least one child passes each check, the overall check passes.
+
+		Warning! If you pass in a tree with more than one child of the same name, this function will always return false
+
+		@param checkTable The table to check against
+
+		@returns A function that checks an instance tree
+	**--]]
+	function t.children(checkTable)
+		assert(checkChildren(checkTable))
+
+		return function(value)
+			local instanceSuccess, instanceErrMsg = t.Instance(value)
+			if not instanceSuccess then
+				return false, instanceErrMsg or ""
+			end
+
+			local childrenByName = {}
+			for _, child in ipairs(value:GetChildren()) do
+				local name = child.Name
+				if checkTable[name] then
+					if childrenByName[name] then
+						return false, string.format("Cannot process multiple children with the same name %q", name)
+					end
+
+					childrenByName[name] = child
+				end
+			end
+
+			for name, check in pairs(checkTable) do
+				local success, errMsg = check(childrenByName[name])
+				if not success then
+					return false, string.format("[%s.%s] %s", value:GetFullName(), name, errMsg or "")
+				end
+			end
+
+			return true
+		end
+	end
+end
+
+return t
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>

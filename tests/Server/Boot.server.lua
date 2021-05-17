@@ -10,7 +10,6 @@ local App = express.App
 local app = App.new()
 
 app:get("/Test", function()
-	print("Hello World!")
 end)
 
 app:post("/Test2", function()
@@ -18,6 +17,16 @@ app:post("/Test2", function()
 end)
 
 app:delete("/Test/Test3", function()
-	print("Why do i even try?")
+	print("Hello World!")
 end)
+
+app:use("/Test", function(req, res)
+	print(req.Body)
+	res:status(200):send("Hello", "World", "!")
+end)
+
+app:use("/Test/Test3", function(_, res)
+	print(res)
+end)
+
 app:Listen("Debug")
