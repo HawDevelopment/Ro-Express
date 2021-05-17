@@ -1,0 +1,21 @@
+site_name: Docs
+
+theme:
+  features:
+    - navigation.instant
+  font:
+    text: Ubuntu
+    code: Roboto Mono
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    
