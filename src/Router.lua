@@ -152,10 +152,11 @@ function Router:_BuildPath(path, inst)
 	temp.Name = string.match(path._path, "[%a%d]+$")
 	temp:SetAttribute("PATH")
 
-	temp.OnServerInvoke = function(_, ...)
-		--TODO: Add Req, Res!
+	temp.OnServerInvoke = function(player, args)
 		local type = path._router._method and path._router._method._type
-		local req = Request._new(path._path, type or "GET", "tuple", ...)
+
+		args["Player"] = player
+		local req = Request._new(path._path, type or "GET", "tuple", args)
 		local res = Response._new()
 
 		for _, router in pairs(middleware) do
