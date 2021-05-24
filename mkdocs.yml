@@ -1,5 +1,10 @@
 site_name: Docs
 
+nav:
+  - Home: index.md
+  - Installation: Installation.md
+  - Getting Started: Getting_Started.md
+
 theme:
   features:
     - navigation.instant
@@ -18,4 +23,8 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Switch to dark mode
-    
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences

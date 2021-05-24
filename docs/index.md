@@ -1,17 +1,10 @@
-# Welcome to MkDocs
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+# Ro-Express
 
-## Commands
+Ro-Express is a Networking module based on [express-js](https://expressjs.com). It makes creating Remotes easy, while implementing lots of useful features.
+It should be used for Big and Complex games, when it can be hard keeping track of things. It shines best with software like Rojo.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+Start here: [Getting Started](./GettingStarted)
 
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+!!! warning
+    Ro-Express is still in alpha, so expect bugs and missing features!
