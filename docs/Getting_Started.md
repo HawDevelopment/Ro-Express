@@ -1,5 +1,5 @@
 
-# Getting Started
+## Basics
 
 Ro-Express syntax is based on [express-js](https://expressjs.com). In Ro-Express all Instances in a tree, has at least one Htpp method attached to it. This makes it easy to categorise Remotes.
 
@@ -72,6 +72,7 @@ local express = require(game:GetService("ReplicatedStorage").express)
 
 local app = express.App.new()
 
+-- create our method
 app:get("/Method 1", function(req, res)
     
     local Player = req:param("Player") or args[1] 
@@ -79,13 +80,12 @@ app:get("/Method 1", function(req, res)
     res:status(200):send(Player.Name or "")
 end)
 
--- This middleware will be called for all underlying methods
-app:use("/", function(req, res)
+-- This middleware will first be called and then the function for the method
+app:use("/Method 1", function(req, res)
     
-    req.Body["Hello"] = "World!"
+    res:send("Hello World!")
     
     -- this locks the current response or "skips" it as its called.
-    res:send("Hello World!")
     res:done() 
 end)
 

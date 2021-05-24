@@ -13,7 +13,7 @@ local App = {}
 App.__index = App
 
 function App.new()
-	local self = setmetatable({}, App)
+	local self = setmetatable({}, { __index = App })
 
 	self._paths = {}
 	self._router = Router._new(false, false)
@@ -87,6 +87,11 @@ function App:delete(...)
 	self:_RegisterValue(Methods.delete(self, ...), "Method")
 end
 
+function App:put(...)
+	assert(t.tuple(t.string, t.callback)(...))
+	self:_registerMethod(Methods.put(self, ...), "Method")
+end
+
 function App:use(path: string, inst: any)
 	assert(t.tuple(t.string, t.any)(path, inst))
 
@@ -94,10 +99,6 @@ function App:use(path: string, inst: any)
 	if type(inst) == "function" then
 		return self:_RegisterValue(Router.func(path, inst), "Router")
 	end
-end
-
-function App:put(...)
-	self:_registerMethod(Methods.put(self, ...))
 end
 
 function App:Destroy()
@@ -113,4 +114,4 @@ function App:Destroy()
 	end })
 end
 
-return App
+return setmetatable(App, { __call = App.new })
