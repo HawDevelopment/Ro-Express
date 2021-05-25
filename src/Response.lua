@@ -28,7 +28,7 @@ end
 
 function Response:send(...)
 	if not self._done then
-		self._params = table.pack(...)
+		self._params = #... < 2 and ... or table.pack(...)
 	end
 
 	return self
