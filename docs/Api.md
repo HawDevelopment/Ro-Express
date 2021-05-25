@@ -118,9 +118,56 @@ app:Destroy()
 
 ## Request
 
+### `Request.new()`
+
+`Request.new(path: string, method: string, ...any)`
+
+Make a request to a specific path with a method attached.
+`Request.new` can be called like `Request()`
+
+``` lua
+-- SERVER
+local express = require(path.to.express)
+
+local app = express.App()
+
+app:get("/Method 1", function(req, res)
+    res:send("Hello World!")
+end)
+
+app:Listen("Tree")
+
+-- CLIENT
+local express = require(path.to.express)
+
+print(express.Request("Tree://Method 1", "GET")) -> {
+    Status = 200,
+    Succes = true,
+    Body = "Hello World!"
+}
+
+```
+
+
+### `Request.Player`
+
+`Request.Player: Player`
+
+The caller of the Request.
+
+``` lua
+local express = require(path.to.express)
+
+local app = express.App()
+
+app:get("/Method 1", function(req, res)
+    print(req.Player.Name) -- Prints the caller's name
+end)
+```
+
 ### `Request.Body`
 
-`Request.Body: {[any]: any}`
+`Request.Body: any`
 
 All the args given from the caller.
 
@@ -176,11 +223,36 @@ local express = require(path.to.express)
 local app = express.App()
 
 app:get("/Method 1", function(req, res)
-    pring(req:param("Player")) -- Prints the callers name
+    -- Prints the value of that index
+    pring(req:param("Foo Bar Bazz")) 
 end)
 ```
 
 ## Response
+
+### `Response.Succes`
+
+`Response.Succes: boolean`
+
+Is true if no error happened while Requesting.
+
+``` lua
+local express = require(path.to.express)
+
+print(express.Request("Tree://Method 1","GET").Succes) -> true
+```
+
+### `Response.Status`
+
+`Response.Status: number`
+
+The returned status from the Request.
+
+``` lua
+local express = require(path.to.express)
+
+print(express.Request("Tree://Method 1","GET").Status) -> 200
+```
 
 ### `Response.Locals`
 

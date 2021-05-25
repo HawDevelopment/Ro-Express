@@ -4,6 +4,9 @@
     5/11/2021
 --]]
 
+local IS_SERVER = game:GetService("RunService"):IsServer()
+local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
+
 local Methods = require(script.Parent.Methods)
 local Router = require(script.Parent.Router)
 
@@ -47,7 +50,7 @@ function App:Listen(name: string | number)
 
 	self._name = assert(name, "Expected a name!")
 
-	self._root = Instance.new("Folder")
+	self._root = Instance.new(REMOTE)
 	self._root.Name = name
 
 	print(self._router)

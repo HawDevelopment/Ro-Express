@@ -52,7 +52,7 @@
 				<Z>0</Z>
 			</Vector3>
 			<string name="Name">Workspace</string>
-			<bool name="NeedsPivotMigration">true</bool>
+			<bool name="NeedsPivotMigration">false</bool>
 			<token name="PhysicsSteppingMethod">0</token>
 			<Ref name="PrimaryPart">null</Ref>
 			<token name="SignalBehavior">0</token>
@@ -64,7 +64,22 @@
 			<BinaryString name="Tags"></BinaryString>
 			<bool name="TerrainWeldsFixed">true</bool>
 			<bool name="TouchesUseCollisionGroups">false</bool>
-			<OptionalCoordinateFrame name="WorldPivotData"></OptionalCoordinateFrame>
+			<OptionalCoordinateFrame name="WorldPivotData">
+				<CFrame>
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+					<R00>1</R00>
+					<R01>0</R01>
+					<R02>0</R02>
+					<R10>0</R10>
+					<R11>1</R11>
+					<R12>0</R12>
+					<R20>0</R20>
+					<R21>0</R21>
+					<R22>1</R22>
+				</CFrame>
+			</OptionalCoordinateFrame>
 		</Properties>
 		<Item class="Camera" referent="RBX3712880BE520456994BDB2EA192EB75B">
 			<Properties>
@@ -503,6 +518,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<bool name="ShowDevelopmentGui">true</bool>
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
+			<token name="VirtualCursorMode">0</token>
 		</Properties>
 	</Item>
 	<Item class="LocalizationService" referent="RBXED893EC6E8B64EE491F1E9AF2A6C38E2">
@@ -927,7 +943,7 @@ local App = {}
 App.__index = App
 
 function App.new()
-	local self = setmetatable({}, App)
+	local self = setmetatable({}, { __index = App })
 
 	self._paths = {}
 	self._router = Router._new(false, false)
@@ -1001,6 +1017,11 @@ function App:delete(...)
 	self:_RegisterValue(Methods.delete(self, ...), "Method")
 end
 
+function App:put(...)
+	assert(t.tuple(t.string, t.callback)(...))
+	self:_registerMethod(Methods.put(self, ...), "Method")
+end
+
 function App:use(path: string, inst: any)
 	assert(t.tuple(t.string, t.any)(path, inst))
 
@@ -1023,7 +1044,7 @@ function App:Destroy()
 	end })
 end
 
-return App
+return setmetatable(App, { __call = App.new })
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
@@ -1122,6 +1143,13 @@ function Methods.delete(_, path, callback)
 	return Methods._new("DELETE", path, callback)
 end
 
+function Methods.put(_, path, callback)
+	path = assert(path, "Need a valid path")
+	callback = assert(callback, "Need a valid callback")
+
+	return Methods._new("PUT", path, callback)
+end
+
 return Methods
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
@@ -1158,7 +1186,6 @@ function Request:param(index: string | number, default: any?)
 	if self._paramstype == "table" then
 		return self.Body[index] or default
 	end
-	return self
 end
 
 --TODO: Add requests to app!
@@ -1205,7 +1232,7 @@ end
 
 function Response:send(...)
 	if not self._done then
-		self._params = table.pack(...)
+		self._param = #... < 2 and ... or table.pack(...)
 	end
 
 	return self
@@ -1469,6 +1496,8 @@ do
 	}
 end
 
+-- Constructures
+
 function Router._new(child, values)
 	values = values or true
 	local self = setmetatable({}, Router)
@@ -1477,7 +1506,6 @@ function Router._new(child, values)
 		if child then
 			self._methods = {}
 			self._routers = {}
-			self._build = false
 		end
 
 		self.IsChild = child or false
@@ -1500,6 +1528,8 @@ function Router.func(path, func)
 
 	return router
 end
+
+-- Path
 
 function Router:_NewPath(path, parent)
 	assert(t.tuple(t.string, t.string)(path, parent))
@@ -1526,11 +1556,13 @@ function Router:_AddPath(path, value, type)
 	local index = Index[type or value.Classname or value._type]
 
 	if index == "Method" then
-		path._router._method = value
+		path._router._methods[value._type] = value
 	elseif index == "Router" then
 		table.insert(path._router._routers, value)
 	end
 end
+
+-- Handlers
 
 function Router:_HandleRouter(path, ...)
 	assert(t.table(path))
@@ -1539,10 +1571,16 @@ function Router:_HandleRouter(path, ...)
 	end
 end
 
-function Router:_HandleMethod(path, ...)
+function Router:_HandleMethod(path, type, ...)
 	assert(t.table(path))
-	Runner(path, self._method, ...)
+	assert(t.string(type))
+
+	if path._router._methods[type] then
+		return Runner(path, path._router._methods[type], ...)
+	end
 end
+
+-- Building
 
 function Router:_GetParentMiddleware(path, middleware)
 	table.insert(middleware, 1, path._router)
@@ -1553,9 +1591,10 @@ end
 
 function Router:_BuildPath(path, inst)
 	path = self._paths[path]
+
 	if not path or not inst then
 		return
-	elseif path._build then
+	elseif path._remote then
 		return path._remote
 	end
 
@@ -1566,14 +1605,27 @@ function Router:_BuildPath(path, inst)
 		self:_GetParentMiddleware(self._paths[path._parent], middleware)
 	end
 
+	return self:_BindPath(path, middleware, inst, parent)
+end
+
+function Router:_BindPath(path, middleware, root, parent)
 	local temp = Instance.new("RemoteFunction")
 	temp.Name = string.match(path._path, "[%a%d]+$")
-	temp:SetAttribute("PATH")
+	temp:SetAttribute("PATH", path._path)
 
-	temp.OnServerInvoke = function(_, ...)
-		--TODO: Add Req, Res!
-		local type = path._router._method and path._router._method._type
-		local req = Request._new(path._path, type or "GET", "tuple", ...)
+	function temp.OnServerInvoke(player, type, arg)
+		assert(t.tuple(t.string(type), t.any(arg)))
+		type = string.upper(type)
+
+		if not Router._IsMethod(type) then
+			return {
+				Status = 404,
+				Succes = false,
+				Body = {},
+			}
+		end
+
+		local req = Request._new(path._path, type, player, arg)
 		local res = Response._new()
 
 		for _, router in pairs(middleware) do
@@ -1581,8 +1633,7 @@ function Router:_BuildPath(path, inst)
 		end
 
 		path._router:_HandleRouter(path, req, res)
-
-		path._router:_HandleMethod(path, req, res)
+		path._router:_HandleMethod(path, type, req, res)
 
 		res:done()
 
@@ -1593,11 +1644,30 @@ function Router:_BuildPath(path, inst)
 		}
 	end
 
-	path._build = true
 	path._remote = temp
-	temp.Parent = parent or inst
+	temp.Parent = parent or root
 
 	return temp
+end
+
+-- Util
+
+local Methods
+do
+	Methods = {
+		"GET",
+		"POST",
+		"DELETE",
+		"PUT",
+	}
+end
+
+function Router._IsMethod(type: string)
+	for i = 1, #Methods, 1 do
+		if Methods[i] == type then
+			return true
+		end
+	end
 end
 
 return Router
@@ -2797,6 +2867,165 @@ end
 
 return t
 ]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="ModuleScript" referent="RBX7CD3E3D0872741C8BADE67E45F568997">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Maid</string>
+					<string name="ScriptGuid">{90C47D47-25D6-4309-AC95-191E5FE3AC28}</string>
+					<ProtectedString name="Source"><![CDATA[-- Maid
+-- Author: Quenty
+-- Source: https://github.com/Quenty/NevermoreEngine/blob/version2/Modules/Shared/Events/Maid.lua
+-- License: MIT (https://github.com/Quenty/NevermoreEngine/blob/version2/LICENSE.md)
+-- This module has been modified for use in AeroGameFramework
+-- https://raw.githubusercontent.com/Sleitnick/Knit/main/src/Util/Maid.lua
+
+--[[
+
+	maid = Maid.new()
+
+	maid:GiveTask(task)
+		> task is an event connection, function, or instance/table with a 'Destroy' method
+
+	maid:GivePromise(promise)
+		> Give the maid a promise as a task, which will call 'promise:Cancel()' on cleanup
+
+	maid:DoCleaning()
+		> Alias for Destroy
+
+	maid:Destroy()
+		> Goes through each task & disconnects events, destroys instances, and calls functions
+
+--]]
+
+local Promise = require(script.Parent.Promise)
+
+
+local Maid = {}
+Maid.ClassName = "Maid"
+
+
+function Maid.new()
+	local self = setmetatable({
+		_tasks = {};
+	}, Maid)
+	return self
+end
+
+
+--- Returns Maid[key] if not part of Maid metatable
+-- @return Maid[key] value
+function Maid:__index(index)
+	if (Maid[index]) then
+		return Maid[index]
+	else
+		return self._tasks[index]
+	end
+end
+
+
+--- Add a task to clean up
+-- @usage
+-- Maid[key] = (function)         Adds a task to perform
+-- Maid[key] = (event connection) Manages an event connection
+-- Maid[key] = (Maid)             Maids can act as an event connection, allowing a Maid to have other maids to clean up.
+-- Maid[key] = (Object)           Maids can cleanup objects with a `Destroy` method
+-- Maid[key] = nil                Removes a named task. If the task is an event, it is disconnected. If it is an object,
+--                                it is destroyed.
+function Maid:__newindex(index, newTask)
+	if (Maid[index] ~= nil) then
+		error(("'%s' is reserved"):format(tostring(index)), 2)
+	end
+
+	local tasks = self._tasks
+	local oldTask = tasks[index]
+	tasks[index] = newTask
+
+	if (oldTask) then
+		if (type(oldTask) == "function") then
+			oldTask()
+		elseif (typeof(oldTask) == "RBXScriptConnection") then
+			oldTask:Disconnect()
+		elseif (oldTask.Destroy) then
+			oldTask:Destroy()
+		elseif (Promise.Is(oldTask)) then
+			oldTask:Cancel()
+		end
+	end
+end
+
+
+--- Same as indexing, but uses an incremented number as a key.
+-- @param task An item to clean
+-- @treturn number taskId
+function Maid:GiveTask(task)
+	assert(task, "Task cannot be false or nil")
+
+	local taskId = (#self._tasks + 1)
+	self[taskId] = task
+
+	if (type(task) == "table" and (not task.Destroy) and (not Promise.Is(task))) then
+		warn("[Maid.GiveTask] - Gave table task without .Destroy\n\n" .. debug.traceback())
+	end
+
+	return taskId
+end
+
+
+function Maid:GivePromise(promise)
+	assert(Promise.Is(promise), "Expected promise")
+	if (promise:GetStatus() ~= Promise.Status.Started) then
+		return promise
+	end
+	local newPromise = Promise.Resolve(promise)
+	local id = self:GiveTask(newPromise)
+	newPromise:Finally(function()
+		self[id] = nil
+	end)
+	return newPromise
+end
+
+
+--- Cleans up all tasks.
+-- @alias Destroy
+function Maid:DoCleaning()
+	local tasks = self._tasks
+
+	-- Disconnect all events first as we know this is safe
+	for index, task in pairs(tasks) do
+		if (typeof(task) == "RBXScriptConnection") then
+			tasks[index] = nil
+			task:Disconnect()
+		end
+	end
+
+	-- Clear out tasks table completely, even if clean up tasks add more tasks to the maid
+	local index, task = next(tasks)
+	while (task ~= nil) do
+		tasks[index] = nil
+		if (type(task) == "function") then
+			task()
+		elseif (typeof(task) == "RBXScriptConnection") then
+			task:Disconnect()
+		elseif (task.Destroy) then
+			task:Destroy()
+		elseif (Promise.Is(task)) then
+			task:Cancel()
+		end
+		index, task = next(tasks)
+	end
+end
+
+
+--- Alias for DoCleaning()
+-- @function Destroy
+Maid.Destroy = Maid.DoCleaning
+
+return Maid]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>

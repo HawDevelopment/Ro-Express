@@ -7,6 +7,9 @@
 local Router = {}
 Router.__index = Router
 
+local IS_SERVER = game:GetService("RunService"):IsServer()
+local EVENT = IS_SERVER and "OnServerInvoke" or "OnInvoke"
+
 local t = require(script.Parent.t)
 
 local Request = require(script.Parent.Request)
@@ -164,12 +167,18 @@ function Router:_BuildPath(path, inst)
 end
 
 function Router:_BindPath(path, middleware, root, parent)
-	local temp = Instance.new("RemoteFunction")
+	local temp
+	if IS_SERVER then
+		temp = Instance.new("RemoteFunction")
+	else
+		temp = Instance.new("BindableFunction")
+	end
+
 	temp.Name = string.match(path._path, "[%a%d]+$")
 	temp:SetAttribute("PATH", path._path)
 
-	function temp.OnServerInvoke(player, type, arg)
-		assert(t.tuple(t.string(type), t.any(arg)))
+	temp[EVENT] = function(player, type, arg)
+		assert(t.tuple(t.string, t.any)(type, arg))
 		type = string.upper(type)
 
 		if not Router._IsMethod(type) then
