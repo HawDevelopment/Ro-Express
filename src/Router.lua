@@ -51,6 +51,8 @@ do
 	}
 end
 
+-- Constructures
+
 function Router._new(child, values)
 	values = values or true
 	local self = setmetatable({}, Router)
@@ -59,7 +61,6 @@ function Router._new(child, values)
 		if child then
 			self._methods = {}
 			self._routers = {}
-			self._build = false
 		end
 
 		self.IsChild = child or false
@@ -82,6 +83,8 @@ function Router.func(path, func)
 
 	return router
 end
+
+-- Path
 
 function Router:_NewPath(path, parent)
 	assert(t.tuple(t.string, t.string)(path, parent))
@@ -108,11 +111,13 @@ function Router:_AddPath(path, value, type)
 	local index = Index[type or value.Classname or value._type]
 
 	if index == "Method" then
-		path._router._method = value
+		path._router._methods[value._type] = value
 	elseif index == "Router" then
 		table.insert(path._router._routers, value)
 	end
 end
+
+-- Handlers
 
 function Router:_HandleRouter(path, ...)
 	assert(t.table(path))
@@ -121,10 +126,16 @@ function Router:_HandleRouter(path, ...)
 	end
 end
 
-function Router:_HandleMethod(path, ...)
+function Router:_HandleMethod(path, type, ...)
 	assert(t.table(path))
-	Runner(path, self._method, ...)
+	assert(t.string(type))
+
+	if path._router._methods[type] then
+		return Runner(path, path._router._methods[type], ...)
+	end
 end
+
+-- Building
 
 function Router:_GetParentMiddleware(path, middleware)
 	table.insert(middleware, 1, path._router)
@@ -135,9 +146,10 @@ end
 
 function Router:_BuildPath(path, inst)
 	path = self._paths[path]
+
 	if not path or not inst then
 		return
-	elseif path._build then
+	elseif path._remote then
 		return path._remote
 	end
 
@@ -148,15 +160,27 @@ function Router:_BuildPath(path, inst)
 		self:_GetParentMiddleware(self._paths[path._parent], middleware)
 	end
 
+	return self:_BindPath(path, middleware, inst, parent)
+end
+
+function Router:_BindPath(path, middleware, root, parent)
 	local temp = Instance.new("RemoteFunction")
 	temp.Name = string.match(path._path, "[%a%d]+$")
-	temp:SetAttribute("PATH")
+	temp:SetAttribute("PATH", path._path)
 
-	temp.OnServerInvoke = function(player, args)
-		local type = path._router._method and path._router._method._type
+	function temp.OnServerInvoke(player, type, arg)
+		assert(t.tuple(t.string(type), t.any(arg)))
+		type = string.upper(type)
 
-		args["Player"] = player
-		local req = Request._new(path._path, type or "GET", "tuple", args)
+		if not Router._IsMethod(type) then
+			return {
+				Status = 404,
+				Succes = false,
+				Body = {},
+			}
+		end
+
+		local req = Request._new(path._path, type, player, arg)
 		local res = Response._new()
 
 		for _, router in pairs(middleware) do
@@ -164,8 +188,7 @@ function Router:_BuildPath(path, inst)
 		end
 
 		path._router:_HandleRouter(path, req, res)
-
-		path._router:_HandleMethod(path, req, res)
+		path._router:_HandleMethod(path, type, req, res)
 
 		res:done()
 
@@ -176,11 +199,30 @@ function Router:_BuildPath(path, inst)
 		}
 	end
 
-	path._build = true
 	path._remote = temp
-	temp.Parent = parent or inst
+	temp.Parent = parent or root
 
 	return temp
+end
+
+-- Util
+
+local Methods
+do
+	Methods = {
+		"GET",
+		"POST",
+		"DELETE",
+		"PUT",
+	}
+end
+
+function Router._IsMethod(type: string)
+	for i = 1, #Methods, 1 do
+		if Methods[i] == type then
+			return true
+		end
+	end
 end
 
 return Router
