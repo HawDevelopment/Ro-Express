@@ -66,7 +66,7 @@ function Request.new(path: string, type: string, ...)
 
 	local event = inst:IsA("RemoteFunction") and "InvokeServer" or "Invoke"
 
-	local succ, err = pcall(inst[event], inst, type, #... < 2 and ... or table.pack(...))
+	local succ, err = pcall(inst[event], inst, type, #(... or {}) < 2 and ... or table.pack(...))
 
 	if not succ then
 		warn(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)))
