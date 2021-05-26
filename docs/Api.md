@@ -27,7 +27,7 @@ local app2 = express.App.new()
 
 ### `Get, Post, Delete, Put`
 
-`App:METHOD(path: string, callback: (Request, Response) -> ()): void`
+`App:METHOD(path: string, callback: (Request, Response)): void`
 
 Registers a callback with a type to the specified path.
 
@@ -51,6 +51,28 @@ end)
 app:put("/Method 4", function(req, res)
     
 end)
+```
+
+### `App:all`
+
+`App:all(path: string, callback: (Request, Response))`
+
+Register an All method to the specified path, this means that the callback will be called on ANY reques to the path.
+
+``` lua
+local express = require(path.to.express)
+
+local app = express.App()
+
+app:get("/Method 1", function(req, res)
+    print("Get")
+end)
+
+app:all("/Method 1", function(req, res)
+    print("All")
+end)
+
+-- When a GET Method 1 is called it will print All and then Get.
 ```
 
 ### `App:Listen`
@@ -112,9 +134,6 @@ app:Listen("Tree")
 
 app:Destroy()
 ```
-
-!!! warning
-    Expect it not to clean everything up, as im still working on new features.
 
 ## Request
 

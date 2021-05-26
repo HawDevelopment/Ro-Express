@@ -4,6 +4,15 @@
     5/11/2021
 --]]
 
+--[[
+	Method._new(type: string, path: string, callback: (Request, Response)) -> Method
+	Methods.__setAttributes(inst: Instance, type: string, path: string)
+	
+	Method.METHOD(path: string, callback: (Request, Response))
+	Method.all(path: string, callback: (Request, Response))
+	
+	Methods:Build(parent: Instance) -> Instance
+--]]
 local Methods = {}
 Methods.__index = Methods
 
@@ -23,7 +32,7 @@ function Methods._new(type: string, path: string, callback: (any) -> any)
 	return self
 end
 
-function Methods.setAttributes(inst: Instance, type: string, path: string): Instance
+function Methods.__setAttributes(inst: Instance, type: string, path: string): Instance
 	inst:SetAttribute("TYPE", type)
 	inst:SetAttribute("PATH", path)
 end
@@ -35,7 +44,7 @@ function Methods:Build(parent: Instance)
 	local curr: RemoteFunction = parent
 
 	if #split < 1 then
-		Methods.setAttributes(parent, self._type, self._path)
+		Methods.__setAttributes(parent, self._type, self._path)
 	else
 		for i = 1, #split, 1 do
 			local temp = curr:FindFirstChild(split[i])
@@ -46,7 +55,7 @@ function Methods:Build(parent: Instance)
 				inst.Name = split[i]
 				inst.Parent = curr
 
-				Methods.setAttributes(inst, self._type, self._path)
+				Methods.__setAttributes(inst, self._type, self._path)
 				curr = inst
 			end
 		end

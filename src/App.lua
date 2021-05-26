@@ -4,6 +4,17 @@
     5/11/2021
 --]]
 
+--[[
+	App.new() -> App
+	
+	App:METHOD(path: string, callback: (Request, Response))
+	App:all(path: string, callback: (Request, Response))
+	App:use(path: string, callback: (Request, Response))
+	
+	App:Listen(name: string | number)
+	App:Destroy()
+--]]
+
 local IS_SERVER = game:GetService("RunService"):IsServer()
 local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
 
@@ -23,7 +34,7 @@ function App.new()
 			if METHODS:lower():find(index:lower()) then
 				return function(_, ...)
 					assert(t.tuple(t.string, t.callback)(...))
-					App._RegisterValue(tab, Methods[index:lower()](tab, ...), "Method")
+					App.__registerValue(tab, Methods[index:lower()](tab, ...), "Method")
 				end
 			end
 
@@ -39,22 +50,21 @@ function App.new()
 	return temp
 end
 
-function App:_NewPath(path, parentpath)
+function App:__newPath(path, parentpath)
 	assert(t.tuple(t.string, t.string)(path, parentpath))
 
 	self._paths[path] = path
-	self._router:_NewPath(path, parentpath)
+	self._router:__newPath(path, parentpath)
 end
 
-function App:_AddPath(path, value, type)
+function App:__addPath(path, value, type)
 	assert(t.tuple(t.string, t.any, t.string)(path, value, type))
-
-	self._router:_AddPath(path, value, type)
+	self._router:__addPath(path, value, type)
 end
 
-function App:_ListenPath(path, inst)
+function App:__listenPath(path, inst)
 	assert(t.tuple(t.string, t.any)(path, inst))
-	self._router:_BuildPath(path, inst)
+	self._router:__buildPath(path, inst)
 end
 
 function App:Listen(name: string | number)
@@ -68,7 +78,7 @@ function App:Listen(name: string | number)
 
 	print(self._router)
 	for _, path in pairs(self._paths) do
-		self:_ListenPath(path, self._root)
+		self:__listenPath(path, self._root)
 	end
 
 	self._root.Parent = game:GetService("ReplicatedStorage")
@@ -76,24 +86,23 @@ function App:Listen(name: string | number)
 	return self._root
 end
 
-function App:_RegisterValue(tab: { any }, type)
+function App:__registerValue(tab: { any }, type)
 	assert(t.tuple(t.table, t.string)(tab, type))
 	local path = tab._path
 
 	if not self._paths[path] then
 		local pathname = string.match(path, "/[%a%d]+$")
-		self:_NewPath(path, string.gsub(path, pathname, ""))
+		self:__newPath(path, string.gsub(path, pathname, ""))
 	end
 
-	self:_AddPath(path, tab, type)
+	self:__addPath(path, tab, type)
 end
 
 function App:use(path: string, inst: any)
-	assert(t.tuple(t.string, t.any)(path, inst))
+	assert(t.tuple(t.string, t.callback)(path, inst))
 
-	--TODO: Add support for routers
 	if type(inst) == "function" then
-		return self:_RegisterValue(Router.func(path, inst), "Router")
+		return self:__registerValue(Router.func(path, inst), "Router")
 	end
 end
 

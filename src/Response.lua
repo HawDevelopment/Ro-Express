@@ -4,12 +4,22 @@
     15/05/2021
 --]]
 
+--[[
+	Response._new(defualt: any) -> Response
+	
+	Response:done() -> Response
+	Response:send(...any) -> Response
+	Response:status(status: number) -> Response
+	
+	Response.Locals: {}
+--]]
+
 local ERROR_STATUS = "45"
 
 local Response = {}
 Response.__index = Response
 
-function Response._new(default)
+function Response._new(default: any)
 	local self = setmetatable({}, Response)
 
 	self.Locals = {}

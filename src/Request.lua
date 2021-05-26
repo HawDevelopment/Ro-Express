@@ -4,6 +4,18 @@
     15/05/2021
 --]]
 
+--[[
+	Request.new(path: string, type: string, ...any) -> {any}
+	Request._new(path: string, type: string, player: Player, ...any) -> Request
+	
+	Request:param(index: name | number)
+	
+	Request.Player: Player
+	Request.Body: any
+	Request.Method: string
+	Request.Path: string
+--]]
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local NOTFOUND = {
