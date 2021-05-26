@@ -20,6 +20,14 @@ app:delete("/Test/Test3", function()
 	print("Hello World!")
 end)
 
+app:get("/Test4", function()
+	print("Callback")
+end)
+
+app:all("/Test4", function()
+	print("All")
+end)
+
 app:use("/Test", function(req, res)
 	print(req.Body)
 	res:status(200):send("Hello", "World", "!")

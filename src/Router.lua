@@ -133,6 +133,10 @@ function Router:_HandleMethod(path, type, ...)
 	assert(t.table(path))
 	assert(t.string(type))
 
+	if path._router._methods.ALL then
+		Runner(path, path._router._methods.ALL, ...)
+	end
+
 	if path._router._methods[type] then
 		return Runner(path, path._router._methods[type], ...)
 	end

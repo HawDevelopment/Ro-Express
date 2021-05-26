@@ -4,6 +4,8 @@
     15/05/2021
 --]]
 
+local ERROR_STATUS = "45"
+
 local Response = {}
 Response.__index = Response
 
@@ -30,16 +32,15 @@ function Response:send(...)
 	if not self._done then
 		self._param = #... < 2 and ... or table.pack(...)
 	end
-
 	return self
 end
 
 function Response:status(status: number)
 	if not self._done then
 		local start = tostring(status):match("^%d")
-		if start == "4" or start == "5" then
+		if ERROR_STATUS:find(start) then
 			self._succes = false
-		elseif start == "2" then
+		else
 			self._succes = true
 		end
 

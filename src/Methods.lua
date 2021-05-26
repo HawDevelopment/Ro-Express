@@ -28,14 +28,7 @@ function Methods.setAttributes(inst: Instance, type: string, path: string): Inst
 	inst:SetAttribute("PATH", path)
 end
 
-function Methods.newInstance(parent: Instance, name: string, type: string): Folder
-	local inst = Instance.new(type)
-	inst.Name = name
-	inst.Parent = parent
-	return inst
-end
-
-function Methods:Build(parent: Folder)
+function Methods:Build(parent: Instance)
 	local path: string = self._path:gsub("^/", "")
 	local split: { [number]: string } = path:split("/")
 
@@ -49,9 +42,12 @@ function Methods:Build(parent: Folder)
 			if temp then
 				curr = temp
 			else
-				temp = Methods.newInstance(curr, split[i], "RemoteFunction")
-				Methods.setAttributes(temp, self._type, self._path)
-				curr = temp
+				local inst = Instance.new("RemoteFunction")
+				inst.Name = split[i]
+				inst.Parent = curr
+
+				Methods.setAttributes(inst, self._type, self._path)
+				curr = inst
 			end
 		end
 	end
@@ -90,6 +86,13 @@ function Methods.put(_, path, callback)
 	callback = assert(callback, "Need a valid callback")
 
 	return Methods._new("PUT", path, callback)
+end
+
+function Methods.all(_, path, callback)
+	path = assert(path, "Need a valid path")
+	callback = assert(callback, "Need a valid callback")
+
+	return Methods._new("ALL", path, callback)
 end
 
 return Methods

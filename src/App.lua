@@ -7,6 +7,8 @@
 local IS_SERVER = game:GetService("RunService"):IsServer()
 local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
 
+local METHODS = "GET POST DELETE PUT ALL"
+
 local Methods = require(script.Parent.Methods)
 local Router = require(script.Parent.Router)
 
@@ -16,14 +18,25 @@ local App = {}
 App.__index = App
 
 function App.new()
-	local self = setmetatable({}, { __index = App })
+	local temp = setmetatable({}, {
+		__index = function(tab, index: string)
+			if METHODS:lower():find(index:lower()) then
+				return function(_, ...)
+					assert(t.tuple(t.string, t.callback)(...))
+					App._RegisterValue(tab, Methods[index:lower()](tab, ...), "Method")
+				end
+			end
 
-	self._paths = {}
-	self._router = Router._new(false, false)
+			return rawget(App, index)
+		end,
+	})
 
-	self._router._paths = {}
+	temp._paths = {}
+	temp._router = Router._new(false, false)
 
-	return self
+	temp._router._paths = {}
+
+	return temp
 end
 
 function App:_NewPath(path, parentpath)
@@ -75,26 +88,6 @@ function App:_RegisterValue(tab: { any }, type)
 	self:_AddPath(path, tab, type)
 end
 
-function App:get(...)
-	assert(t.tuple(t.string, t.callback)(...))
-	self:_RegisterValue(Methods.get(self, ...), "Method")
-end
-
-function App:post(...)
-	assert(t.tuple(t.string, t.callback)(...))
-	self:_RegisterValue(Methods.post(self, ...), "Method")
-end
-
-function App:delete(...)
-	assert(t.tuple(t.string, t.callback)(...))
-	self:_RegisterValue(Methods.delete(self, ...), "Method")
-end
-
-function App:put(...)
-	assert(t.tuple(t.string, t.callback)(...))
-	self:_registerMethod(Methods.put(self, ...), "Method")
-end
-
 function App:use(path: string, inst: any)
 	assert(t.tuple(t.string, t.any)(path, inst))
 
@@ -105,8 +98,6 @@ function App:use(path: string, inst: any)
 end
 
 function App:Destroy()
-	self._newitem:Destroy()
-
 	if self._root then
 		self._root:Destroy()
 	end

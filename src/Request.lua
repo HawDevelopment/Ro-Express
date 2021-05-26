@@ -31,8 +31,8 @@ end
 function Request.new(path: string, type: string, ...)
 	assert(t.tuple(t.string, t.string)(path, type))
 
-	local treename = path:match("[%a%d]+")
-	local tree = ReplicatedStorage:FindFirstChild(treename)
+	-- Find the tree
+	local tree = ReplicatedStorage:WaitForChild(path:match("[%a%d]+"))
 
 	if not tree then
 		return NOTFOUND
@@ -54,12 +54,7 @@ function Request.new(path: string, type: string, ...)
 
 	local event = inst:IsA("RemoteFunction") and "InvokeServer" or "Invoke"
 
-	print(inst)
-	print(event)
 	local succ, err = pcall(inst[event], inst, type, #... < 2 and ... or table.pack(...))
-
-	print(succ)
-	print(err)
 
 	if not succ then
 		warn(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)))
@@ -95,4 +90,6 @@ function Request:param(index: string | number, default: any?)
 	end
 end
 
-return setmetatable({}, { __index = Request, __call = Request.new })
+return setmetatable({}, { __index = Request, __call = function(_, ...)
+	return Request.new(...)
+end })
