@@ -8,7 +8,7 @@ repo_name: HawDevelopment/Ro-Express
 repo_url: https://github.com/HawDevelopment/Ro-Express
 edit_uri: ""
 
-copyright: Copyright &copy; 2021 - 2022 Martin Donath
+copyright: Copyright &copy; 2021 - 2022 HawDevelopment
 
 nav:
   - Home: index.md
