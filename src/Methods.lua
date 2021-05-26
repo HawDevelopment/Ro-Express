@@ -19,7 +19,7 @@ Methods.__index = Methods
 Methods.Classname = "Method"
 
 function Methods:_run(method, ...)
-	return method._callback(...)
+	return method.callback(...)
 end
 
 function Methods._new(type: string, path: string, callback: (any) -> any)
@@ -27,7 +27,7 @@ function Methods._new(type: string, path: string, callback: (any) -> any)
 
 	self._type = type
 	self._path = path
-	self._callback = callback
+	self.callback = callback
 
 	return self
 end
@@ -59,10 +59,6 @@ function Methods:Build(parent: Instance)
 				curr = inst
 			end
 		end
-	end
-
-	if curr:IsA("RemoteFunction") then
-		curr.OnServerInvoke = self._callback
 	end
 
 	self._build = true

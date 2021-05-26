@@ -45,7 +45,7 @@ function App.new()
 	temp._paths = {}
 	temp._router = Router._new(false, false)
 
-	temp._router._paths = {}
+	temp._router.paths = {}
 
 	return temp
 end
@@ -88,7 +88,9 @@ end
 
 function App:__registerValue(tab: { any }, type)
 	assert(t.tuple(t.table, t.string)(tab, type))
-	local path = tab._path
+	local path = tab._path or tab.path
+	print(tab)
+	print(path)
 
 	if not self._paths[path] then
 		local pathname = string.match(path, "/[%a%d]+$")
@@ -101,9 +103,7 @@ end
 function App:use(path: string, inst: any)
 	assert(t.tuple(t.string, t.callback)(path, inst))
 
-	if type(inst) == "function" then
-		return self:__registerValue(Router.func(path, inst), "Router")
-	end
+	self:__registerValue(Router.func(path, inst), "Router")
 end
 
 function App:Destroy()
