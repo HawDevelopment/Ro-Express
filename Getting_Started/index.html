@@ -14,7 +14,7 @@
     
     
       
-        <title>Getting Started - Docs</title>
+        <title>Getting Started - Ro-Express</title>
       
     
     
@@ -74,7 +74,7 @@
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Docs" class="md-header__button md-logo" aria-label="Docs" data-md-component="logo">
+    <a href=".." title="Ro-Express" class="md-header__button md-logo" aria-label="Ro-Express" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -87,7 +87,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Docs
+            Ro-Express
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -176,13 +176,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Docs" class="md-nav__button md-logo" aria-label="Docs" data-md-component="logo">
+    <a href=".." title="Ro-Express" class="md-nav__button md-logo" aria-label="Ro-Express" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
 
     </a>
-    Docs
+    Ro-Express
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -409,7 +409,7 @@
                   <h1>Getting Started</h1>
                 
                 <h2 id="basics">Basics</h2>
-<p>Ro-Express syntax is based on <a href="https://expressjs.com">express-js</a>. In Ro-Express all Instances in a tree, has at least one Htpp method attached to it. This makes it easy to categorise Remotes.</p>
+<p>Ro-Express syntax is based on <a href="https://expressjs.com">express-js</a>. In Ro-Express all Instances in a tree, has at least one Http method attached to it. This makes it easy to categorise Remotes, or have many callbacks attached to one path.</p>
 <p>Heres what a normal Ro-Express tree:</p>
 <p>Tree</p>
 <ul>
@@ -424,23 +424,22 @@
 
 <span class="kd">local</span> <span class="n">app</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
 
-<span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/Method 1&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+<span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/Method 1&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
 
 <span class="kr">end</span><span class="p">)</span>
 
-<span class="n">app</span><span class="p">:</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;/Method 2&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+<span class="n">app</span><span class="p">:</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;/Method 2&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
 
 <span class="kr">end</span><span class="p">)</span>
 
-<span class="n">app</span><span class="p">:</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/Method 2&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+<span class="n">app</span><span class="p">:</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/Method 2&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
 
 <span class="kr">end</span><span class="p">)</span>
 
 <span class="n">app</span><span class="p">:</span><span class="n">Listen</span><span class="p">(</span><span class="s2">&quot;Tree&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<p>Apps or "Trees" can be made on the server and client.
-Now when any request to the Remotes is made, it will call its coresponding function.s</p>
+<p>Apps or "Trees" can be made on both server and client.</p>
 <h2 id="request-and-response">Request and Response</h2>
 <p>You can use Request to get all the incoming data from the caller, and use Response to specify the response data.</p>
 <p><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">game</span><span class="p">:</span><span class="n">GetService</span><span class="p">(</span><span class="s2">&quot;ReplicatedStorage&quot;</span><span class="p">).</span><span class="n">express</span><span class="p">)</span>
