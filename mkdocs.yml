@@ -1,4 +1,14 @@
 site_name: Ro-Express
+site_author: HawDevelopment
+site_description: >-
+  One of the best Modules for clearing up networking complexity. It has a syntax like expressjs.
+  Its not only better but also has a lot of features such as: Middleware, Diffrent Methods, Paths and Responses.
+
+repo_name: HawDevelopment/Ro-Express
+repo_url: https://github.com/HawDevelopment/Ro-Express
+edit_uri: ""
+
+copyright: Copyright &copy; 2021 - 2022 Martin Donath
 
 nav:
   - Home: index.md
@@ -24,6 +34,15 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Switch to dark mode
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/HawDevelopment/Ro-Express
+      name: GitHub repository for Ro-Express
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/HawDevelopment
+      name: HawDevelopment's Twitter
 
 markdown_extensions:
   - admonition
