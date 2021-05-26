@@ -1,0 +1,197 @@
+<default>
+type = 'class'
+parent = {}
+
+<default>
+type = 'function'
+parent = {
+    1 = {
+        type = 'object',
+        name = 'Express'
+    }
+}
+
+[App]
+type = 'aPP'
+
+[Request]
+type = 'Request'
+
+[Response]
+type = 'Response'
+
+<default>
+type = 'function'
+parent = {
+    1 = {
+        type = 'object',
+        name = 'App'
+    }
+}
+
+[new]
+[[.returns]]
+type = 'App'
+
+[get]
+[[.args]]
+name = 'self'
+type = 'any'
+``````````
+name = 'path'
+type = 'string'
+``````````
+name = 'callback'
+type = 'function'
+
+[post]
+[[.args]]
+name = 'self'
+type = 'any'
+``````````
+name = 'path'
+type = 'string'
+``````````
+name = 'callback'
+type = 'function'
+
+[delete]
+[[.args]]
+name = 'self'
+type = 'any'
+``````````
+name = 'path'
+type = 'string'
+``````````
+name = 'callback'
+type = 'function'
+
+[put]
+[[.args]]
+name = 'self'
+type = 'any'
+``````````
+name = 'path'
+type = 'string'
+``````````
+name = 'callback'
+type = 'function'
+
+[all]
+[[.args]]
+name = 'self'
+type = 'any'
+``````````
+name = 'path'
+type = 'string'
+``````````
+name = 'callback'
+type = 'function'
+
+[use]
+[[.args]]
+name = 'path'
+type = 'string'
+``````````
+name = 'callback'
+type = 'function'
+
+[Destroy]
+[[.args]]
+name = 'self'
+type = 'any'
+
+[Listen]
+[[.args]]
+name = 'self'
+type = 'any'
+[[.returns]]
+type = 'Instance'
+
+<default>
+type = 'function'
+parent = {
+    1 = {
+        type = 'object',
+        name = 'Request'
+    }
+}
+
+[new]
+[[.args]]
+name = 'path'
+type = 'string'
+``````````
+name = 'method'
+type = 'string'
+``````````
+name = 'method'
+type = 'string'
+``````````
+type = '...'
+[[.returns]]
+type = 'table'
+
+[Player]
+type = 'Player'
+
+[Method]
+type = 'string'
+
+[Path]
+type = 'string'
+
+[param]
+[[.args]]
+name = 'self'
+type = 'any'
+``````````
+name = 'path'
+type = {'string', 'number'}
+``````````
+name = 'defualt'
+type = 'any'
+[[.returns]]
+type = any
+
+<default>
+type = 'function'
+parent = {
+    1 = {
+        type = 'object',
+        name = 'Response'
+    }
+}
+
+[Succes]
+tpye = 'boolean'
+
+[Status]
+type = 'number'
+
+[Locals]
+type = 'table'
+
+[send]
+[[.args]]
+name = 'self'
+type = 'any'
+``````````
+type = '...'
+[[.returns]]
+type = 'Response'
+
+[status]
+[[.args]]
+name = 'self'
+type = 'any'
+``````````
+name = 'status'
+type = 'number'
+[[.returns]]
+type = 'Response'
+
+[done]
+[[.args]]
+name = 'self'
+type = 'any'
