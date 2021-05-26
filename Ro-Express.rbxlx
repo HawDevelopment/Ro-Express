@@ -85,27 +85,27 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>76.227478</X>
-					<Y>20.9102497</Y>
-					<Z>26.4985237</Z>
-					<R00>0.253551781</R00>
-					<R01>-0.127193794</R01>
-					<R02>0.958922982</R02>
-					<R10>-3.7252903e-09</R10>
-					<R11>0.991317451</R11>
-					<R12>0.131490663</R12>
-					<R20>-0.967321873</R20>
-					<R21>-0.0333396941</R21>
-					<R22>0.251350313</R22>
+					<X>84.2895737</X>
+					<Y>24.9913902</Y>
+					<Z>39.0040817</Z>
+					<R00>0.893839121</R00>
+					<R01>-0.104647972</R01>
+					<R02>0.436005056</R02>
+					<R10>-7.4505806e-09</R10>
+					<R11>0.972383916</R11>
+					<R12>0.233387217</R12>
+					<R20>-0.448387802</R20>
+					<R21>-0.208610624</R21>
+					<R22>0.869154811</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>74.3096313</X>
-					<Y>20.6472683</Y>
-					<Z>25.9958229</Z>
+					<X>83.4175644</X>
+					<Y>24.5246162</Y>
+					<Z>37.2657738</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -490,13 +490,13 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="LocalScript" referent="RBX4DADE949815F43C4A0B9A5CC9177C5C0">
+				<Item class="LocalScript" referent="RBX9966D5DA74854D85AEE7DD0DAA066844">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<bool name="Disabled">false</bool>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Boot</string>
-						<string name="ScriptGuid">{10A7A09F-B8F0-4397-9984-A6E658559CCB}</string>
+						<string name="ScriptGuid">{09092674-3441-4277-8551-5BCA4DD9B4AF}</string>
 						<ProtectedString name="Source"><![CDATA[--local TestEZ = require(game:GetService("ReplicatedStorage").TestEz)
 
 --TestEZ.TestBootstrap:run({ script.Parent })
@@ -927,6 +927,30 @@ end
 					</Properties>
 				</Item>
 			</Item>
+			<Item class="Folder" referent="RBX2EA79ECB6EFA4E0D9031E4A2F0796C0C">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Response</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBX4094692D55464B7AA0C3A6095F3AC9BF">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Methods</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBXF88AD91C97F54504A7B2C2806F3CB118">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Request</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="ServerStorage" referent="RBX81A8B74778CD4E51A978B235953D88C9">
@@ -1054,8 +1078,10 @@ end
 
 function App:__registerValue(tab: { any }, type)
 	assert(t.tuple(t.table, t.string)(tab, type))
-	local path = tab.path
+	local path = tab._path or tab.path
+	print(tab)
 	print(path)
+
 	if not self._paths[path] then
 		local pathname = string.match(path, "/[%a%d]+$")
 		self:__newPath(path, string.gsub(path, pathname, ""))
@@ -1114,7 +1140,7 @@ Methods.__index = Methods
 Methods.Classname = "Method"
 
 function Methods:_run(method, ...)
-	return method._callback(...)
+	return method.callback(...)
 end
 
 function Methods._new(type: string, path: string, callback: (any) -> any)
@@ -1122,7 +1148,7 @@ function Methods._new(type: string, path: string, callback: (any) -> any)
 
 	self._type = type
 	self._path = path
-	self._callback = callback
+	self.callback = callback
 
 	return self
 end
@@ -1154,10 +1180,6 @@ function Methods:Build(parent: Instance)
 				curr = inst
 			end
 		end
-	end
-
-	if curr:IsA("RemoteFunction") then
-		curr.OnServerInvoke = self._callback
 	end
 
 	self._build = true
@@ -1279,7 +1301,7 @@ function Request.new(path: string, type: string, ...)
 
 	local event = inst:IsA("RemoteFunction") and "InvokeServer" or "Invoke"
 
-	local succ, err = pcall(inst[event], inst, type, #... < 2 and ... or table.pack(...))
+	local succ, err = pcall(inst[event], inst, type, #(... or {}) < 2 and ... or table.pack(...))
 
 	if not succ then
 		warn(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)))
@@ -1371,7 +1393,7 @@ end
 
 function Response:send(...)
 	if not self._done then
-		self._param = #... < 2 and ... or table.pack(...)
+		self._param = #(... or {}) < 2 and ... or table.pack(...)
 	end
 	return self
 end

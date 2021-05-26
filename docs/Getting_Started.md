@@ -1,7 +1,7 @@
 
 ## Basics
 
-Ro-Express syntax is based on [express-js](https://expressjs.com). In Ro-Express all Instances in a tree, has at least one Htpp method attached to it. This makes it easy to categorise Remotes.
+Ro-Express syntax is based on [express-js](https://expressjs.com). In Ro-Express all Instances in a tree, has at least one Http method attached to it. This makes it easy to categorise Remotes, or have many callbacks attached to one path.
 
 Heres what a normal Ro-Express tree:
 
@@ -19,23 +19,23 @@ local express = require(game:GetService("ReplicatedStorage").express)
 
 local app = express.App.new()
 
-app:get("/Method 1", function(req, res)
+app:get("/Method 1", function()
 
 end)
 
-app:delete("/Method 2", function(req, res)
+app:delete("/Method 2", function()
 
 end)
 
-app:post("/Method 2", function(req, res)
+app:post("/Method 2", function()
 
 end)
 
 app:Listen("Tree")
 ```
 
-Apps or "Trees" can be made on the server and client.
-Now when any request to the Remotes is made, it will call its coresponding function.s
+Apps or "Trees" can be made on both server and client.
+
 ## Request and Response
 
 You can use Request to get all the incoming data from the caller, and use Response to specify the response data.
