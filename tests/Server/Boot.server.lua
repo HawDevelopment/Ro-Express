@@ -4,10 +4,10 @@
 
 -- DEBUGGING
 
-local express = require(game:GetService("ReplicatedStorage").express)
+local express: Express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
-local app = App.new()
+local app: App = App.new()
 
 app:get("/Test", function()
 end)
