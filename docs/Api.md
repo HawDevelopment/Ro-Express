@@ -7,11 +7,11 @@ Contains:
 * App
 * Request
 * Response
-* Router
 
 ## App
 
 The app is the way you register Methods and create Middleware, it also builds the finale tree of Remotes.
+An app can be made on the server and client.
 
 An app can be made like this:
 
@@ -242,7 +242,7 @@ local express = require(path.to.express)
 local app = express.App()
 
 app:get("/Method 1", function(req, res)
-    -- Prints the value of that index
+    -- Prints the value of that index in the args
     pring(req:param("Foo Bar Bazz")) 
 end)
 ```

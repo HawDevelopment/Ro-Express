@@ -34,6 +34,7 @@ end)
 app:Listen("Tree")
 ```
 
+Apps or "Trees" can be made on the server and client.
 Now when any request to the Remotes is made, it will call its coresponding function.s
 ## Request and Response
 
@@ -60,7 +61,43 @@ end)
 
 app:Listen("Tree")
 ```
-Now when the client makes a request to Method 1 it we get its name!
+Now when the client makes a GET request to Method 1 it we get its name!
+
+### Making a Request
+
+Using the Request class you can make request to paths and trees.
+
+
+When making a Request you will need:
+
+
+* The URL, with tree name and path. So something like `Tree://Method 1`.
+* The method. (GET, POST, DELETE, )
+* Arguments.
+
+``` lua
+-- Server
+local express = require(game:GetService("ReplicatedStorage").express)
+
+local app = express.App.new()
+
+app:get("/Method 1", function(req, res)
+    
+    res:status(200):send("Hello World!")
+end)
+
+app:Listen("Tree")
+-- Client
+local express = require(game:GetService("ReplicatedStorage").express)
+
+local Return = express.Request("Tree://Method 1", "GET")
+
+print(Return.Body) -> "Hello World!"
+print(Return.Succes) -> true
+print(Return.Status) -> 200
+```
+
+
 
 ## Middleware
 
@@ -92,3 +129,12 @@ end)
 app:Listen("Tree")
 ```
 When we call any Method it will always return "Hello World!".
+
+### Execution Model
+
+When requesting Ro-Express Execution Model looks like this:
+
+* Call any parent middleware.
+* Call path middleware.
+* Call the ALL method for that path. (If exists)
+* Call the path's method functions.
