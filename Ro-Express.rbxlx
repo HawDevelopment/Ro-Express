@@ -503,6 +503,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 
 -- DEBUGGING
 
+--[[
 local express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
@@ -537,10 +538,108 @@ app:use("/Test/Test3", function(_, res)
 end)
 
 app:Listen("Client")
+--]]
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
+				</Item>
+			</Item>
+			<Item class="Folder" referent="RBXD3067BF110434067B3A3F720F1A45E67">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Examples</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+				<Item class="LocalScript" referent="RBXB5E6B0133537458EBE37CE5C4616B596">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<bool name="Disabled">false</bool>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Boot</string>
+						<string name="ScriptGuid">{2092B735-E725-46F9-94D5-5ADF01A80995}</string>
+						<ProtectedString name="Source"><![CDATA[--[[
+    Example Client
+    HawDevelopment
+    27/05/2021
+--]]
+
+local Examples = script.Parent:WaitForChild("Examples"):GetDescendants()
+
+for _, module in pairs(Examples) do
+	require(module)
+end
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+				<Item class="Folder" referent="RBX3C07936D1D81495FB47FEAB479DBEADE">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<string name="Name">Examples</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+					<Item class="ModuleScript" referent="RBX9E2B268CC86E4367961E415319A3896D">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Client-Server</string>
+							<string name="ScriptGuid">{4AAADBF8-AF01-441F-A09D-7049B2CD4BC6}</string>
+							<ProtectedString name="Source"><![CDATA[--[[
+    Client-Server Example
+    HawDevelopment
+    27/05/2021
+--]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local express = require(ReplicatedStorage.express)
+
+local Return = express.Request.new("MoneyTree://GetMoney", "Get").Body or 10
+
+express.Request.new("MoneyTree://SetMoney", "Post", Return + 10)
+
+print(express.Request.new("MoneyTree://GetMoney", "Get").Body)
+
+return {}
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+						</Properties>
+					</Item>
+					<Item class="ModuleScript" referent="RBXE7833E997F1A43CAB9B394EB9BA29B71">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Auth</string>
+							<string name="ScriptGuid">{5CD87B19-FC5E-49FB-9D9C-3C4B2691828B}</string>
+							<ProtectedString name="Source"><![CDATA[--[[
+    Auth Example
+    HawDevelopment
+    27/05/2021
+--]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local express = require(ReplicatedStorage.express)
+
+local Return = express.Request.new("AuthTree://GetHugs", "Get")
+
+if Return.Status == 401 or not Return.Succes then
+	print("You are not Authorized!")
+else
+	print("Get some hugs: " .. Return.Body)
+end
+
+return {}
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+						</Properties>
+					</Item>
 				</Item>
 			</Item>
 		</Item>
@@ -753,16 +852,17 @@ app:Listen("Client")
 					<Content name="LinkedSource"><null></null></Content>
 					<string name="Name">Boot</string>
 					<string name="ScriptGuid">{9CEAAE4F-1861-48C7-ABC7-7FE713F16FF9}</string>
-					<ProtectedString name="Source"><![CDATA[--local TestEZ = require(game:GetService("ReplicatedStorage").TestEz)
+					<ProtectedString name="Source"><![CDATA[local TestEZ = require(game:GetService("ReplicatedStorage").TestEz)
 
---TestEZ.TestBootstrap:run({ script.Parent })
+TestEZ.TestBootstrap:run({ script.Parent })
 
 -- DEBUGGING
 
-local express = require(game:GetService("ReplicatedStorage").express)
+--[[
+local express: Express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
-local app = App.new()
+local app: App = App.new()
 
 app:get("/Test", function()
 end)
@@ -793,6 +893,7 @@ app:use("/Test/Test3", function(_, res)
 end)
 
 app:Listen("Debug")
+--]]
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
@@ -805,12 +906,12 @@ app:Listen("Debug")
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBX6ED791462CDD42E49A47AC8DEAE1A5BA">
+				<Item class="ModuleScript" referent="RBX645BCB63D7ED4D578F33004A75C4EBDE">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">Default.spec</string>
-						<string name="ScriptGuid">{1D60A06D-EB10-4F63-96AD-38C35307C8BB}</string>
+						<string name="Name">App.spec</string>
+						<string name="ScriptGuid">{2D58C61C-3900-4DCC-B53D-51AB0EFE3568}</string>
 						<ProtectedString name="Source"><![CDATA[local express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
@@ -823,8 +924,7 @@ return function()
 
 		it("should have all the components of an app", function()
 			local app = App.new()
-			expect(app._methods).to.be.a("table")
-			expect(app._newitem.Classname).to.be.equal("Signal")
+			expect(app._router).to.be.a("table")
 			app:Destroy()
 		end)
 	end)
@@ -861,29 +961,21 @@ return function()
 	end)
 
 	describe("App:Method", function()
-		local app = App.new()
-
-		it("should handle a get request", function()
-			expect(function()
-				app:get("/", function()
-					print("Hello World!")
-				end)
-			end).never.to.be.throw()
-		end)
-
 		it("should throw when given wrong arguments", function()
+			local app = App.new()
 			expect(function()
 				app:get(nil, 10)
 			end).to.be.throw()
+			app:Destroy()
 		end)
 
 		it("should build succesfuly", function()
+			local app = App.new()
 			expect(function()
 				app:Listen("ShouldBuild")
 			end).never.to.be.throw()
+			app:Destroy()
 		end)
-
-		app:Destroy()
 	end)
 
 	describe("App:use", function()
@@ -902,22 +994,6 @@ return function()
 				app:Listen("AppUseShouldNotError")
 				app:Destroy()
 			end).to.never.be.throw()
-		end)
-
-		it("should have all the components necesary", function()
-			local app = App.new()
-
-			app:get("/Test", function()
-				print("Hello World!")
-			end)
-
-			local router = app:use("/Test", function()
-				print("Middleware!")
-			end)
-
-			expect(router).to.be.an("table")
-			expect(router._path).to.be.an("string")
-			expect(router._router).to.be.an("function")
 		end)
 	end)
 end
@@ -950,6 +1026,139 @@ end
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
+			</Item>
+		</Item>
+		<Item class="Folder" referent="RBX4BB7EA8BEB8C4B9891442EFE93134D96">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<string name="Name">Examples</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+			<Item class="Script" referent="RBX4555C3EAA2924149B35A3DB273267FD3">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<bool name="Disabled">false</bool>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Boot</string>
+					<string name="ScriptGuid">{C56A8DB5-C199-4434-A703-39D9831F4ECC}</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+    Example Server
+    HawDevelopment
+    27/05/2021
+--]]
+
+local Examples = script.Parent:WaitForChild("Examples"):GetDescendants()
+
+for _, module in pairs(Examples) do
+	require(module)
+end
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBX2BBFE048EFB746A7AB494993EDA63A72">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Examples</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+				<Item class="ModuleScript" referent="RBXC6380AE075D44BCE96B30AF6A38E6816">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Client-Server</string>
+						<string name="ScriptGuid">{B3437BC6-EDE0-472A-9E3D-73ADE6141DBD}</string>
+						<ProtectedString name="Source"><![CDATA[--[[
+    Client-Server Example
+    HawDevelopment
+    27/05/2021
+--]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local express = require(ReplicatedStorage.express)
+
+local app: App = express.App.new()
+
+local Money = {}
+
+app:get("/GetMoney", function(req: Request, res: Response)
+	-- Response Status will defualt to 200, so we dont have to call it.
+	res:send(Money[req.Player] or 0)
+end)
+
+app:post("/SetMoney", function(req: Request, res: Response)
+	assert(req.Body, "Need a valid amount of Money to set!")
+	Money[req.Player] = req.Body
+
+	res:send("We set the Money!")
+end)
+
+app:Listen("MoneyTree")
+
+return {}
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX64F23254B2F744EFAA95B17D77539A83">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Auth</string>
+						<string name="ScriptGuid">{DDE4FC87-69A0-44BA-A96D-7746A8D93814}</string>
+						<ProtectedString name="Source"><![CDATA[--[[
+    Auth Example
+    HawDevelopment
+    27/05/2021
+--]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local express = require(ReplicatedStorage.express)
+
+local app: App = express.App.new()
+
+local VerifiedUsers = {
+	"HawDevelopment_",
+	"Elttob",
+	"ScriptOn",
+	"Sleitnick",
+}
+
+app:use("/", function(req, res)
+	local isVerified = false
+
+	for _, name in pairs(VerifiedUsers) do
+		if req.Player.Name == name then
+			isVerified = true
+			break
+		end
+	end
+
+	if not isVerified then
+		res:status(401):send("Your not Authorized to do that!")
+	end
+end)
+
+app:get("/GetHugs", function(_: Request, res: Response)
+	res:send("Hugs 🤗")
+end)
+
+print(app)
+
+app:Listen("AuthTree")
+
+return {}
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 	</Item>
@@ -1066,7 +1275,6 @@ function App:Listen(name: string | number)
 	self._root = Instance.new(REMOTE)
 	self._root.Name = name
 
-	print(self._router)
 	for _, path in pairs(self._paths) do
 		self:__listenPath(path, self._root)
 	end
@@ -1078,12 +1286,10 @@ end
 
 function App:__registerValue(tab: { any }, type)
 	assert(t.tuple(t.table, t.string)(tab, type))
-	local path = tab._path or tab.path
-	print(tab)
-	print(path)
+	local path = tab.path or tab._path
 
 	if not self._paths[path] then
-		local pathname = string.match(path, "/[%a%d]+$")
+		local pathname = string.match(path, "/[%a%d]+$") or ""
 		self:__newPath(path, string.gsub(path, pathname, ""))
 	end
 
@@ -1301,7 +1507,8 @@ function Request.new(path: string, type: string, ...)
 
 	local event = inst:IsA("RemoteFunction") and "InvokeServer" or "Invoke"
 
-	local succ, err = pcall(inst[event], inst, type, #(... or {}) < 2 and ... or table.pack(...))
+	local pack = table.pack(...)
+	local succ, err = pcall(inst[event], inst, type, #pack < 2 and ... or pack)
 
 	if not succ then
 		warn(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)))
@@ -1324,7 +1531,8 @@ function Request._new(path, type, player, ...)
 	local self = setmetatable({}, Request)
 
 	self.Player = player
-	self.Body = #... < 2 and ... or table.pack(...)
+	local pack = table.pack(...)
+	self.Body = #pack < 2 and ... or pack
 	self.Method = type
 	self.Path = path
 
@@ -1393,7 +1601,8 @@ end
 
 function Response:send(...)
 	if not self._done then
-		self._param = #(... or {}) < 2 and ... or table.pack(...)
+		local pack = table.pack(...)
+		self._param = #pack < 2 and ... or pack
 	end
 	return self
 end
@@ -1585,7 +1794,7 @@ end
 function Router:__buildPath(path, inst)
 	path = self.paths[path]
 
-	if not path or not inst then
+	if not path or not inst or path.path == "" then
 		return
 	elseif path.remote then
 		return path.remote

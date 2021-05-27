@@ -4,6 +4,7 @@
 
 -- DEBUGGING
 
+--[[
 local express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
@@ -38,3 +39,4 @@ app:use("/Test/Test3", function(_, res)
 end)
 
 app:Listen("Client")
+--]]

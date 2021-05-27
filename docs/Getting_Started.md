@@ -97,8 +97,6 @@ print(Return.Succes) -> true
 print(Return.Status) -> 200
 ```
 
-
-
 ## Middleware
 
 Middleware is a function, that get called before the method attached to the path does.

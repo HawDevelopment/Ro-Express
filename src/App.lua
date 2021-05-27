@@ -76,7 +76,6 @@ function App:Listen(name: string | number)
 	self._root = Instance.new(REMOTE)
 	self._root.Name = name
 
-	print(self._router)
 	for _, path in pairs(self._paths) do
 		self:__listenPath(path, self._root)
 	end
@@ -88,12 +87,10 @@ end
 
 function App:__registerValue(tab: { any }, type)
 	assert(t.tuple(t.table, t.string)(tab, type))
-	local path = tab._path or tab.path
-	print(tab)
-	print(path)
+	local path = tab.path or tab._path
 
 	if not self._paths[path] then
-		local pathname = string.match(path, "/[%a%d]+$")
+		local pathname = string.match(path, "/[%a%d]+$") or ""
 		self:__newPath(path, string.gsub(path, pathname, ""))
 	end
 

@@ -159,7 +159,7 @@ end
 function Router:__buildPath(path, inst)
 	path = self.paths[path]
 
-	if not path or not inst then
+	if not path or not inst or path.path == "" then
 		return
 	elseif path.remote then
 		return path.remote

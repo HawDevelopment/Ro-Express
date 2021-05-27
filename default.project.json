@@ -16,6 +16,9 @@
       "$className": "ServerScriptService",
       "Tests": {
         "$path": "tests/Server"
+      },
+      "Examples": {
+        "$path": "Examples/Server"
       }
     },
     "StarterPlayer": {
@@ -24,6 +27,9 @@
         "$className": "StarterPlayerScripts",
         "Tests": {
           "$path": "tests/Client"
+        },
+        "Examples": {
+          "$path": "Examples/Client"
         }
       }
     }

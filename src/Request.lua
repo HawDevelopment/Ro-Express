@@ -66,7 +66,8 @@ function Request.new(path: string, type: string, ...)
 
 	local event = inst:IsA("RemoteFunction") and "InvokeServer" or "Invoke"
 
-	local succ, err = pcall(inst[event], inst, type, #(... or {}) < 2 and ... or table.pack(...))
+	local pack = table.pack(...)
+	local succ, err = pcall(inst[event], inst, type, #pack < 2 and ... or pack)
 
 	if not succ then
 		warn(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)))
@@ -89,7 +90,8 @@ function Request._new(path, type, player, ...)
 	local self = setmetatable({}, Request)
 
 	self.Player = player
-	self.Body = #... < 2 and ... or table.pack(...)
+	local pack = table.pack(...)
+	self.Body = #pack < 2 and ... or pack
 	self.Method = type
 	self.Path = path
 

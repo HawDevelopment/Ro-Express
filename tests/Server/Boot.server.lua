@@ -1,9 +1,10 @@
---local TestEZ = require(game:GetService("ReplicatedStorage").TestEz)
+local TestEZ = require(game:GetService("ReplicatedStorage").TestEz)
 
---TestEZ.TestBootstrap:run({ script.Parent })
+TestEZ.TestBootstrap:run({ script.Parent })
 
 -- DEBUGGING
 
+--[[
 local express: Express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
@@ -38,3 +39,4 @@ app:use("/Test/Test3", function(_, res)
 end)
 
 app:Listen("Debug")
+--]]

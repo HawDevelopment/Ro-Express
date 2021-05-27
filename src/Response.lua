@@ -40,7 +40,8 @@ end
 
 function Response:send(...)
 	if not self._done then
-		self._param = #(... or {}) < 2 and ... or table.pack(...)
+		local pack = table.pack(...)
+		self._param = #pack < 2 and ... or pack
 	end
 	return self
 end
