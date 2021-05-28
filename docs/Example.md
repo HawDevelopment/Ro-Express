@@ -5,7 +5,7 @@
 Since Ro-Express is all about networking this shouldnt come as a suprise. But it can be hard to grasp for newcomers when starting out with the Module.
 Heres some code that makes two methods, one to update money and a second to get money.
 
-#### Server
+=== "Server"
 
 ``` lua
 local express = require(path.to.express)
@@ -29,7 +29,7 @@ end)
 app:Listen("MoneyTree")
 ```
 
-#### Client
+=== "Client"
 ``` lua
 local express = require(path.to.express)
 
@@ -40,11 +40,13 @@ express.Request.new("MoneyTree://SetMoney", "Post", Return + 10)
 print(express.Request.new("MoneyTree://GetMoney", "Get").Body) -- Prints 10
 ```
 
+With this you can Get and Change your money from the methods.
+
 ### Auth
 
 The best use for Middleware is guarding for bad requests. Lets say you have an Admin system, you can use middleware for guarding all Methods.
 
-#### Server
+=== "Server"
 ``` lua
 local express = require(path.to.express)
 
@@ -79,7 +81,7 @@ end)
 app:Listen("AuthTree")
 ```
 
-#### Client
+=== "Client"
 ``` lua
 local express = require(ReplicatedStorage.express)
 
@@ -88,6 +90,8 @@ local Return = express.Request.new("AuthTree://GetHugs", "Get")
 if Return.Status == 401 or not Return.Succes then
 	print("You are not Authorized!")
 else
-	print("Get some hugs: " .. Return.Body) -- Prints "Get some hugs: Hugs 🤗"
+	print("Get some hugs: " .. Return.Body)
 end
 ```
+
+When Requesting something from ´/GetHugs´ you will get hugs if you are authorized!
