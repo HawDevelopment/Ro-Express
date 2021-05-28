@@ -88,6 +88,6 @@ local Return = express.Request.new("AuthTree://GetHugs", "Get")
 if Return.Status == 401 or not Return.Succes then
 	print("You are not Authorized!")
 else
-	print("Get some hugs: " .. Return.Body)
+	print("Get some hugs: " .. Return.Body) -- Prints "Get some hugs: Hugs 🤗"
 end
 ```

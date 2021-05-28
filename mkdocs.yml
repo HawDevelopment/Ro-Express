@@ -14,6 +14,7 @@ nav:
   - Home: index.md
   - Installation: Installation.md
   - Getting Started: Getting_Started.md
+  - Examples: Example.md
   - Api: Api.md
 
 theme:
