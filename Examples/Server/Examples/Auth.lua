@@ -22,7 +22,6 @@ app:get("/GetHugs", function(_: Request, res: Response)
 end)
 
 app:use("/", function(req, res)
-	print("Called")
 	local isVerified = false
 
 	for _, name in pairs(VerifiedUsers) do
@@ -36,8 +35,6 @@ app:use("/", function(req, res)
 		res:status(401):send("Your not Authorized to do that!"):done()
 	end
 end)
-
-print(app)
 
 app:Listen("AuthTree")
 
