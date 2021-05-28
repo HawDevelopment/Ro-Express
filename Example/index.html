@@ -18,7 +18,7 @@
     
     
       
-        <title>Getting Started - Ro-Express</title>
+        <title>Examples - Ro-Express</title>
       
     
     
@@ -67,7 +67,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#basics" class="md-skip">
+        <a href="#example-code" class="md-skip">
           Skip to content
         </a>
       
@@ -97,7 +97,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              Examples
             
           </span>
         </div>
@@ -253,6 +253,21 @@
 
   
   
+  
+    <li class="md-nav__item">
+      <a href="../Getting_Started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
     
   
   
@@ -263,12 +278,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Getting Started
+          Examples
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Getting Started
+        Examples
       </a>
       
         
@@ -284,43 +299,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#basics" class="md-nav__link">
-    Basics
+  <a href="#example-code" class="md-nav__link">
+    Example Code
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#request-and-response" class="md-nav__link">
-    Request and Response
-  </a>
-  
-    <nav class="md-nav" aria-label="Request and Response">
+    <nav class="md-nav" aria-label="Example Code">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#making-a-request" class="md-nav__link">
-    Making a Request
+  <a href="#server-client" class="md-nav__link">
+    Server - Client
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#middleware" class="md-nav__link">
-    Middleware
-  </a>
-  
-    <nav class="md-nav" aria-label="Middleware">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#execution-model" class="md-nav__link">
-    Execution Model
+  <a href="#auth" class="md-nav__link">
+    Auth
   </a>
   
 </li>
@@ -334,21 +329,6 @@
   
 </nav>
       
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../Example/" class="md-nav__link">
-        Examples
-      </a>
     </li>
   
 
@@ -392,43 +372,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#basics" class="md-nav__link">
-    Basics
+  <a href="#example-code" class="md-nav__link">
+    Example Code
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#request-and-response" class="md-nav__link">
-    Request and Response
-  </a>
-  
-    <nav class="md-nav" aria-label="Request and Response">
+    <nav class="md-nav" aria-label="Example Code">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#making-a-request" class="md-nav__link">
-    Making a Request
+  <a href="#server-client" class="md-nav__link">
+    Server - Client
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#middleware" class="md-nav__link">
-    Middleware
-  </a>
-  
-    <nav class="md-nav" aria-label="Middleware">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#execution-model" class="md-nav__link">
-    Execution Model
+  <a href="#auth" class="md-nav__link">
+    Auth
   </a>
   
 </li>
@@ -451,127 +411,101 @@
               
                 
                 
-                  <h1>Getting Started</h1>
+                  <h1>Examples</h1>
                 
-                <h2 id="basics">Basics</h2>
-<p>Ro-Express syntax is based on <a href="https://expressjs.com">express-js</a>. In Ro-Express all Instances in a tree, has at least one Http method attached to it. This makes it easy to categorise Remotes, or have many callbacks attached to one path.</p>
-<p>Heres what a normal Ro-Express tree:</p>
-<p>Tree</p>
-<ul>
-<li>Method 1 (GET)<ul>
-<li>Method 2 (DELETE)</li>
-</ul>
-</li>
-<li>Method 3 (POST)</li>
-</ul>
-<p>We can make something like that with this code:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">game</span><span class="p">:</span><span class="n">GetService</span><span class="p">(</span><span class="s2">&quot;ReplicatedStorage&quot;</span><span class="p">).</span><span class="n">express</span><span class="p">)</span>
+                <h2 id="example-code">Example Code</h2>
+<h3 id="server-client">Server - Client</h3>
+<p>Since Ro-Express is all about networking this shouldnt come as a suprise. But it can be hard to grasp for newcomers when starting out with the Module.
+Heres some code that makes two methods, one to update money and a second to get money.</p>
+<div class="tabbed-set" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><label for="__tabbed_1_1">Server</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">to</span><span class="p">.</span><span class="n">express</span><span class="p">)</span>
 
-<span class="kd">local</span> <span class="n">app</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+<span class="kd">local</span> <span class="n">app</span><span class="p">:</span> <span class="n">App</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
 
-<span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/Method 1&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
+<span class="kd">local</span> <span class="n">Money</span> <span class="o">=</span> <span class="p">{}</span>
 
+<span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/GetMoney&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">res</span><span class="p">:</span> <span class="n">Response</span><span class="p">)</span>
+    <span class="c1">-- Response Status will defualt to 200, so we dont have to call it.</span>
+    <span class="n">res</span><span class="p">:</span><span class="n">send</span><span class="p">(</span><span class="n">Money</span><span class="p">[</span><span class="n">req</span><span class="p">.</span><span class="n">Player</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
 <span class="kr">end</span><span class="p">)</span>
 
-<span class="n">app</span><span class="p">:</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;/Method 2&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
+<span class="n">app</span><span class="p">:</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/SetMoney&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">res</span><span class="p">:</span> <span class="n">Response</span><span class="p">)</span>
+    <span class="nb">assert</span><span class="p">(</span><span class="n">req</span><span class="p">.</span><span class="n">Body</span><span class="p">,</span> <span class="s2">&quot;Need a valid amount of Money to set!&quot;</span><span class="p">)</span>
+    <span class="n">Money</span><span class="p">[</span><span class="n">req</span><span class="p">.</span><span class="n">Player</span><span class="p">]</span> <span class="o">=</span> <span class="n">req</span><span class="p">.</span><span class="n">Body</span>
 
+    <span class="n">res</span><span class="p">:</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;We set the Money!&quot;</span><span class="p">)</span>
 <span class="kr">end</span><span class="p">)</span>
 
-<span class="n">app</span><span class="p">:</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/Method 2&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
-
-<span class="kr">end</span><span class="p">)</span>
-
-<span class="n">app</span><span class="p">:</span><span class="n">Listen</span><span class="p">(</span><span class="s2">&quot;Tree&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="p">:</span><span class="n">Listen</span><span class="p">(</span><span class="s2">&quot;MoneyTree&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<p>Apps or "Trees" can be made on both server and client.</p>
-<h2 id="request-and-response">Request and Response</h2>
-<p>You can use Request to get all the incoming data from the caller, and use Response to specify the response data.</p>
-<p><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">game</span><span class="p">:</span><span class="n">GetService</span><span class="p">(</span><span class="s2">&quot;ReplicatedStorage&quot;</span><span class="p">).</span><span class="n">express</span><span class="p">)</span>
+</div>
+<input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><label for="__tabbed_1_2">Client</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">to</span><span class="p">.</span><span class="n">express</span><span class="p">)</span>
 
-<span class="kd">local</span> <span class="n">app</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+<span class="kd">local</span> <span class="n">Return</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;MoneyTree://GetMoney&quot;</span><span class="p">,</span> <span class="s2">&quot;Get&quot;</span><span class="p">).</span><span class="n">Body</span>
 
-<span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/Method 1&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+<span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;MoneyTree://SetMoney&quot;</span><span class="p">,</span> <span class="s2">&quot;Post&quot;</span><span class="p">,</span> <span class="n">Return</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
 
-    <span class="kd">local</span> <span class="n">args</span> <span class="o">=</span> <span class="n">req</span><span class="p">.</span><span class="n">Body</span> <span class="c1">-- the incoming data (a table)</span>
-    <span class="kd">local</span> <span class="n">method</span> <span class="o">=</span> <span class="n">req</span><span class="p">.</span><span class="n">Method</span> <span class="c1">-- the call type (GET, POST, DELETE etc.)</span>
-    <span class="kd">local</span> <span class="n">path</span> <span class="o">=</span> <span class="n">req</span><span class="p">.</span><span class="n">Path</span> <span class="c1">-- the call path (/Method 1)</span>
-
-    <span class="c1">-- you can use :Param to get things from the body</span>
-    <span class="kd">local</span> <span class="n">Player</span> <span class="o">=</span> <span class="n">req</span><span class="p">:</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;Player&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
-
-    <span class="c1">-- using response we can send data back.</span>
-    <span class="c1">-- You should always send a status!</span>
-    <span class="n">res</span><span class="p">:</span><span class="n">status</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span><span class="n">send</span><span class="p">(</span><span class="n">Player</span><span class="p">.</span><span class="n">Name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-<span class="kr">end</span><span class="p">)</span>
-
-<span class="n">app</span><span class="p">:</span><span class="n">Listen</span><span class="p">(</span><span class="s2">&quot;Tree&quot;</span><span class="p">)</span>
-</code></pre></div>
-Now when the client makes a GET request to Method 1 it we get its name!</p>
-<h3 id="making-a-request">Making a Request</h3>
-<p>Using the Request class you can make request to paths and trees.</p>
-<p>When making a Request you will need:</p>
-<ul>
-<li>The URL, with tree name and path. So something like <code>Tree://Method 1</code>.</li>
-<li>The method. (GET, POST, DELETE, )</li>
-<li>Arguments.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="c1">-- Server</span>
-<span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">game</span><span class="p">:</span><span class="n">GetService</span><span class="p">(</span><span class="s2">&quot;ReplicatedStorage&quot;</span><span class="p">).</span><span class="n">express</span><span class="p">)</span>
-
-<span class="kd">local</span> <span class="n">app</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
-
-<span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/Method 1&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
-
-    <span class="n">res</span><span class="p">:</span><span class="n">status</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello World!&quot;</span><span class="p">)</span>
-<span class="kr">end</span><span class="p">)</span>
-
-<span class="n">app</span><span class="p">:</span><span class="n">Listen</span><span class="p">(</span><span class="s2">&quot;Tree&quot;</span><span class="p">)</span>
-<span class="c1">-- Client</span>
-<span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">game</span><span class="p">:</span><span class="n">GetService</span><span class="p">(</span><span class="s2">&quot;ReplicatedStorage&quot;</span><span class="p">).</span><span class="n">express</span><span class="p">)</span>
-
-<span class="kd">local</span> <span class="n">Return</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">(</span><span class="s2">&quot;Tree://Method 1&quot;</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">Return</span><span class="p">.</span><span class="n">Body</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Hello World!&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">Return</span><span class="p">.</span><span class="n">Succes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">true</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">Return</span><span class="p">.</span><span class="n">Status</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">200</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;MoneyTree://GetMoney&quot;</span><span class="p">,</span> <span class="s2">&quot;Get&quot;</span><span class="p">).</span><span class="n">Body</span><span class="p">)</span> <span class="c1">-- Prints 10</span>
 </code></pre></div>
 
-<h2 id="middleware">Middleware</h2>
-<p>Middleware is a function, that get called before the method attached to the path does.
-A Middleware function can also change or skip the current request.</p>
-<p><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">game</span><span class="p">:</span><span class="n">GetService</span><span class="p">(</span><span class="s2">&quot;ReplicatedStorage&quot;</span><span class="p">).</span><span class="n">express</span><span class="p">)</span>
+</div>
+</div>
+<p>With this you can Get and Change your money from the methods.</p>
+<h3 id="auth">Auth</h3>
+<p>The best use for Middleware is guarding for bad requests. Lets say you have an Admin system, you can use middleware for guarding all Methods.</p>
+<div class="tabbed-set" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><label for="__tabbed_2_1">Server</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">to</span><span class="p">.</span><span class="n">express</span><span class="p">)</span>
 
-<span class="kd">local</span> <span class="n">app</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+<span class="kd">local</span> <span class="n">app</span><span class="p">:</span> <span class="n">App</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
 
-<span class="c1">-- create our method</span>
-<span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/Method 1&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+<span class="kd">local</span> <span class="n">VerifiedUsers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;HawDevelopment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Elttob&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ScriptOn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Sleitnick&quot;</span><span class="p">,</span>
+<span class="p">}</span>
 
-    <span class="kd">local</span> <span class="n">Player</span> <span class="o">=</span> <span class="n">req</span><span class="p">:</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;Player&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
-
-    <span class="n">res</span><span class="p">:</span><span class="n">status</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span><span class="n">send</span><span class="p">(</span><span class="n">Player</span><span class="p">.</span><span class="n">Name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/GetHugs&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">res</span><span class="p">:</span> <span class="n">Response</span><span class="p">)</span>
+    <span class="n">res</span><span class="p">:</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hugs 🤗&quot;</span><span class="p">)</span>
 <span class="kr">end</span><span class="p">)</span>
 
-<span class="c1">-- This middleware will first be called and then the function for the method</span>
-<span class="n">app</span><span class="p">:</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;/Method 1&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+<span class="n">app</span><span class="p">:</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">isVerified</span> <span class="o">=</span> <span class="kc">false</span>
 
-    <span class="n">res</span><span class="p">:</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello World!&quot;</span><span class="p">)</span>
+    <span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">VerifiedUsers</span><span class="p">)</span> <span class="kr">do</span>
+        <span class="kr">if</span> <span class="n">req</span><span class="p">.</span><span class="n">Player</span><span class="p">.</span><span class="n">Name</span> <span class="o">==</span> <span class="n">name</span> <span class="kr">then</span>
+            <span class="n">isVerified</span> <span class="o">=</span> <span class="kc">true</span>
+            <span class="kr">break</span>
+        <span class="kr">end</span>
+    <span class="kr">end</span>
 
-    <span class="c1">-- this locks the current response or &quot;skips&quot; it as its called.</span>
-    <span class="n">res</span><span class="p">:</span><span class="n">done</span><span class="p">()</span> 
+    <span class="kr">if</span> <span class="ow">not</span> <span class="n">isVerified</span> <span class="kr">then</span>
+        <span class="n">res</span><span class="p">:</span><span class="n">status</span><span class="p">(</span><span class="mi">401</span><span class="p">):</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;Your not Authorized to do that!&quot;</span><span class="p">):</span><span class="n">done</span><span class="p">()</span>
+    <span class="kr">end</span>
 <span class="kr">end</span><span class="p">)</span>
 
-<span class="n">app</span><span class="p">:</span><span class="n">Listen</span><span class="p">(</span><span class="s2">&quot;Tree&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="p">:</span><span class="n">Listen</span><span class="p">(</span><span class="s2">&quot;AuthTree&quot;</span><span class="p">)</span>
 </code></pre></div>
-When we call any Method it will always return "Hello World!".</p>
-<h3 id="execution-model">Execution Model</h3>
-<p>When requesting Ro-Express Execution Model looks like this:</p>
-<ul>
-<li>Call any parent middleware.</li>
-<li>Call path middleware.</li>
-<li>Call the ALL method for that path. (If exists)</li>
-<li>Call the path's method functions.</li>
-</ul>
+
+</div>
+<input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><label for="__tabbed_2_2">Client</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">ReplicatedStorage</span><span class="p">.</span><span class="n">express</span><span class="p">)</span>
+
+<span class="kd">local</span> <span class="n">Return</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;AuthTree://GetHugs&quot;</span><span class="p">,</span> <span class="s2">&quot;Get&quot;</span><span class="p">)</span>
+
+<span class="kr">if</span> <span class="n">Return</span><span class="p">.</span><span class="n">Status</span> <span class="o">==</span> <span class="mi">401</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">Return</span><span class="p">.</span><span class="n">Succes</span> <span class="kr">then</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You are not Authorized!&quot;</span><span class="p">)</span>
+<span class="kr">else</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Get some hugs: &quot;</span> <span class="o">..</span> <span class="n">Return</span><span class="p">.</span><span class="n">Body</span><span class="p">)</span>
+    <span class="c1">-- Prints &quot;Get some hugs: Hugs 🤗&quot;</span>
+<span class="kr">end</span>
+</code></pre></div>
+
+</div>
+</div>
+<p>When Requesting something from ´/GetHugs´ you will get hugs if you are authorized!</p>
                 
               
               
@@ -590,7 +524,7 @@ When we call any Method it will always return "Hello World!".</p>
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../Installation/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../Getting_Started/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -599,19 +533,19 @@ When we call any Method it will always return "Hello World!".</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Installation
+              Getting Started
             </div>
           </div>
         </a>
       
       
-        <a href="../Example/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="../Api/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Examples
+              Api
             </div>
           </div>
           <div class="md-footer__button md-icon">
