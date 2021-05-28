@@ -26,6 +26,11 @@ local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
 
 local METHODS = "GET POST DELETE PUT"
 
+local NOT_FOUND = {
+	Status = 404,
+	Succes = false,
+}
+
 local t = require(script.Parent.t)
 
 local Request = require(script.Parent.Request)
@@ -97,14 +102,13 @@ function Router:__newPath(path, parent)
 	assert(t.tuple(t.string)(path))
 	assert(not self.paths[path], "Path is already made!")
 
-	local newpath = {
+	self.paths[path] = {
 		router = Router._new(true, true),
 		path = path,
 		parent = parent,
 	}
 
-	self.paths[path] = newpath
-	return newpath
+	return self.paths[path]
 end
 
 function Router:__addPath(path, value, type)
@@ -135,16 +139,13 @@ function Router:__handleRouter(path, ...)
 end
 
 function Router:__handleMethod(path, type, ...)
-	assert(t.table(path))
-	assert(t.string(type))
+	assert(t.tuple(t.table, t.string)(path, type))
 
 	if path.router.methods.ALL then
 		Runner(path, path.router.methods.ALL, ...)
 	end
 
-	if path.router.methods[type] then
-		return Runner(path, path.router.methods[type], ...)
-	end
+	Runner(path, path.router.methods[type], ...)
 end
 
 -- Building
@@ -160,48 +161,51 @@ end
 function Router:__buildPath(path, inst)
 	path = self.paths[path]
 
-	if not path or not inst or path.path == "/" then
+	if not path or not inst then
 		return
 	elseif path.remote then
 		return path.remote
 	end
 
-	local parent = self:__buildPath(path.parent, inst)
+	local parent = path.path == "/" and inst or self:__buildPath(path.parent, inst)
 
 	return self:__bindPath(path, inst, parent)
 end
 
 function Router:__bindPath(path, root, parent)
-	local temp = Instance.new(REMOTE)
-
-	temp.Name = string.match(path.path, "[%a%d]+$")
-	temp:SetAttribute("PATH", path.path)
+	local temp
+	if path.path == "/" then
+		temp = root
+	else
+		temp = Instance.new(REMOTE)
+		temp.Name = string.match(path.path, "[%a%d]+$")
+		temp.Parent = parent or root
+	end
+	path.remote = temp
 
 	temp[EVENT] = function(...)
 		local player, type, arg
 		if IS_SERVER then
 			player, type, arg = ...
 		else
-			type, arg = ...
+			player, type, arg = game.Players.LocalPlayer, ...
 		end
 
-		assert(t.tuple(t.string, t.any)(type, arg))
 		type = string.upper(type)
+		assert(t.tuple(t.string, t.any)(type, arg))
+		assert(Router.__isMethod(type), "Bad Request: That method doesnt exist!")
 
-		if not Router.__isMethod(type) then
-			return error("Bad Request: That method doesnt exist!")
+		if not path.router.methods[type] then
+			return NOT_FOUND
 		end
 
 		local req = Request._new(path.path, type, player, arg)
 		local res = Response._new()
 
-		if self.paths[path.parent] then
-			for _, router in pairs(self:__getParentMiddleware(self.paths[path.parent], {})) do
-				router:__handleRouter(path, req, res)
-			end
+		for _, router in pairs(self:__getParentMiddleware(path, {})) do
+			router:__handleRouter(path, req, res)
 		end
 
-		path.router:__handleRouter(path, req, res)
 		path.router:__handleMethod(path, type, req, res)
 
 		res:done()
@@ -212,9 +216,6 @@ function Router:__bindPath(path, root, parent)
 			Body = res._param,
 		}
 	end
-
-	path.remote = temp
-	temp.Parent = parent or root
 
 	return temp
 end
