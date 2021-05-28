@@ -52,7 +52,7 @@
 				<Z>0</Z>
 			</Vector3>
 			<string name="Name">Workspace</string>
-			<bool name="NeedsPivotMigration">false</bool>
+			<bool name="NeedsPivotMigration">true</bool>
 			<token name="PhysicsSteppingMethod">0</token>
 			<Ref name="PrimaryPart">null</Ref>
 			<token name="SignalBehavior">0</token>
@@ -1003,30 +1003,6 @@ end
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="Folder" referent="RBX2EA79ECB6EFA4E0D9031E4A2F0796C0C">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<string name="Name">Response</string>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-				</Properties>
-			</Item>
-			<Item class="Folder" referent="RBX4094692D55464B7AA0C3A6095F3AC9BF">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<string name="Name">Methods</string>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-				</Properties>
-			</Item>
-			<Item class="Folder" referent="RBXF88AD91C97F54504A7B2C2806F3CB118">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<string name="Name">Request</string>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-				</Properties>
-			</Item>
 		</Item>
 		<Item class="Folder" referent="RBX4BB7EA8BEB8C4B9891442EFE93134D96">
 			<Properties>
@@ -1124,11 +1100,15 @@ local express = require(ReplicatedStorage.express)
 local app: App = express.App.new()
 
 local VerifiedUsers = {
-	"HawDevelopment_",
+	"HawDevelopment",
 	"Elttob",
 	"ScriptOn",
 	"Sleitnick",
 }
+
+app:get("/GetHugs", function(_: Request, res: Response)
+	res:send("Hugs 🤗")
+end)
 
 app:use("/", function(req, res)
 	local isVerified = false
@@ -1141,15 +1121,9 @@ app:use("/", function(req, res)
 	end
 
 	if not isVerified then
-		res:status(401):send("Your not Authorized to do that!")
+		res:status(401):send("Your not Authorized to do that!"):done()
 	end
 end)
-
-app:get("/GetHugs", function(_: Request, res: Response)
-	res:send("Hugs 🤗")
-end)
-
-print(app)
 
 app:Listen("AuthTree")
 
@@ -1250,7 +1224,7 @@ function App.new()
 end
 
 function App:__newPath(path, parentpath)
-	assert(t.tuple(t.string, t.string)(path, parentpath))
+	assert(t.tuple(t.string)(path))
 
 	self._paths[path] = path
 	self._router:__newPath(path, parentpath)
@@ -1289,8 +1263,9 @@ function App:__registerValue(tab: { any }, type)
 	local path = tab.path or tab._path
 
 	if not self._paths[path] then
-		local pathname = string.match(path, "/[%a%d]+$") or ""
-		self:__newPath(path, string.gsub(path, pathname, ""))
+		local parentname = string.match(path, "/[%a%d]+$")
+		parentname = parentname and string.gsub(path, parentname, "") or nil
+		self:__newPath(path, parentname == "" and "/" or parentname)
 	end
 
 	self:__addPath(path, tab, type)
@@ -1721,7 +1696,7 @@ function Router.func(path, func)
 
 	router.router = func
 	router.path = path
-	router.type = "Router"
+	router._type = "Router"
 
 	return router
 end
@@ -1729,7 +1704,7 @@ end
 -- Path
 
 function Router:__newPath(path, parent)
-	assert(t.tuple(t.string, t.string)(path, parent))
+	assert(t.tuple(t.string)(path))
 	assert(not self.paths[path], "Path is already made!")
 
 	local newpath = {
@@ -1789,12 +1764,13 @@ function Router:__getParentMiddleware(path, middleware)
 	if path.parent and self.paths[path.parent] then
 		self:__getParentMiddleware(self.paths[path.parent], middleware)
 	end
+	return middleware
 end
 
 function Router:__buildPath(path, inst)
 	path = self.paths[path]
 
-	if not path or not inst or path.path == "" then
+	if not path or not inst or path.path == "/" then
 		return
 	elseif path.remote then
 		return path.remote
@@ -1802,15 +1778,10 @@ function Router:__buildPath(path, inst)
 
 	local parent = self:__buildPath(path.parent, inst)
 
-	local middleware = {}
-	if self.paths[path.parent] then
-		self:__getParentMiddleware(self.paths[path.parent], middleware)
-	end
-
-	return self:__bindPath(path, middleware, inst, parent)
+	return self:__bindPath(path, inst, parent)
 end
 
-function Router:__bindPath(path, middleware, root, parent)
+function Router:__bindPath(path, root, parent)
 	local temp = Instance.new(REMOTE)
 
 	temp.Name = string.match(path.path, "[%a%d]+$")
@@ -1834,8 +1805,10 @@ function Router:__bindPath(path, middleware, root, parent)
 		local req = Request._new(path.path, type, player, arg)
 		local res = Response._new()
 
-		for _, router in pairs(middleware) do
-			router:__handleRouter(path, req, res)
+		if self.paths[path.parent] then
+			for _, router in pairs(self:__getParentMiddleware(self.paths[path.parent], {})) do
+				router:__handleRouter(path, req, res)
+			end
 		end
 
 		path.router:__handleRouter(path, req, res)
