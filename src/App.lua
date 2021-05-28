@@ -51,7 +51,7 @@ function App.new()
 end
 
 function App:__newPath(path, parentpath)
-	assert(t.tuple(t.string, t.string)(path, parentpath))
+	assert(t.tuple(t.string)(path))
 
 	self._paths[path] = path
 	self._router:__newPath(path, parentpath)
@@ -90,8 +90,9 @@ function App:__registerValue(tab: { any }, type)
 	local path = tab.path or tab._path
 
 	if not self._paths[path] then
-		local pathname = string.match(path, "/[%a%d]+$") or ""
-		self:__newPath(path, string.gsub(path, pathname, ""))
+		local parentname = string.match(path, "/[%a%d]+$")
+		parentname = parentname and string.gsub(path, parentname, "") or nil
+		self:__newPath(path, parentname == "" and "/" or parentname)
 	end
 
 	self:__addPath(path, tab, type)

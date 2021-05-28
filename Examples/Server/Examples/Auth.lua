@@ -11,13 +11,18 @@ local express = require(ReplicatedStorage.express)
 local app: App = express.App.new()
 
 local VerifiedUsers = {
-	"HawDevelopment_",
+	"HawDevelopment",
 	"Elttob",
 	"ScriptOn",
 	"Sleitnick",
 }
 
+app:get("/GetHugs", function(_: Request, res: Response)
+	res:send("Hugs 🤗")
+end)
+
 app:use("/", function(req, res)
+	print("Called")
 	local isVerified = false
 
 	for _, name in pairs(VerifiedUsers) do
@@ -28,12 +33,8 @@ app:use("/", function(req, res)
 	end
 
 	if not isVerified then
-		res:status(401):send("Your not Authorized to do that!")
+		res:status(401):send("Your not Authorized to do that!"):done()
 	end
-end)
-
-app:get("/GetHugs", function(_: Request, res: Response)
-	res:send("Hugs 🤗")
 end)
 
 print(app)

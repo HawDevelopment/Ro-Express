@@ -86,7 +86,7 @@ function Router.func(path, func)
 
 	router.router = func
 	router.path = path
-	router.type = "Router"
+	router._type = "Router"
 
 	return router
 end
@@ -94,7 +94,7 @@ end
 -- Path
 
 function Router:__newPath(path, parent)
-	assert(t.tuple(t.string, t.string)(path, parent))
+	assert(t.tuple(t.string)(path))
 	assert(not self.paths[path], "Path is already made!")
 
 	local newpath = {
@@ -154,12 +154,13 @@ function Router:__getParentMiddleware(path, middleware)
 	if path.parent and self.paths[path.parent] then
 		self:__getParentMiddleware(self.paths[path.parent], middleware)
 	end
+	return middleware
 end
 
 function Router:__buildPath(path, inst)
 	path = self.paths[path]
 
-	if not path or not inst or path.path == "" then
+	if not path or not inst or path.path == "/" then
 		return
 	elseif path.remote then
 		return path.remote
@@ -167,15 +168,10 @@ function Router:__buildPath(path, inst)
 
 	local parent = self:__buildPath(path.parent, inst)
 
-	local middleware = {}
-	if self.paths[path.parent] then
-		self:__getParentMiddleware(self.paths[path.parent], middleware)
-	end
-
-	return self:__bindPath(path, middleware, inst, parent)
+	return self:__bindPath(path, inst, parent)
 end
 
-function Router:__bindPath(path, middleware, root, parent)
+function Router:__bindPath(path, root, parent)
 	local temp = Instance.new(REMOTE)
 
 	temp.Name = string.match(path.path, "[%a%d]+$")
@@ -199,8 +195,10 @@ function Router:__bindPath(path, middleware, root, parent)
 		local req = Request._new(path.path, type, player, arg)
 		local res = Response._new()
 
-		for _, router in pairs(middleware) do
-			router:__handleRouter(path, req, res)
+		if self.paths[path.parent] then
+			for _, router in pairs(self:__getParentMiddleware(self.paths[path.parent], {})) do
+				router:__handleRouter(path, req, res)
+			end
 		end
 
 		path.router:__handleRouter(path, req, res)
