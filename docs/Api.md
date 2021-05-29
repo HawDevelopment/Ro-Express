@@ -139,7 +139,7 @@ app:Destroy()
 
 ### `Request.new()`
 
-`Request.new(path: string, method: string, ...any)`
+`Request.new(path: string, method: string, ...any): {any}`
 
 Make a request to a specific path with a method attached.
 `Request.new` can be called like `Request()`
@@ -164,9 +164,7 @@ print(express.Request("Tree://Method 1", "GET")) -> {
     Succes = true,
     Body = "Hello World!"
 }
-
 ```
-
 
 ### `Request.Player`
 
@@ -229,6 +227,22 @@ app:get("/Method 1", function(req, res)
     pring(req.Path) -> "/Method 1"
 end)
 ```
+
+### `Get, Post, Delete, Put`
+
+`Request.METHOD(path: string, ...any): {any}`
+
+Makes a request with the Method as type with any arguments given.
+This is exactly same thing as doing `Request.new(path, METHOD, ...)` but just neater.
+
+``` lua
+local express = require(path.to.express)
+
+express.Request.get("Tree://Method 1")
+-- The same as 
+express.Request.new("Tree://Method 1", "GET")
+```
+
 
 ### `Request:param`
 

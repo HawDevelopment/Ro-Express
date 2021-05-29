@@ -6,6 +6,12 @@
 
 --[[
 	Request.new(path: string, type: string, ...any) -> {any}
+	
+	Request.get(path: string, ...any) -> {any}
+	Request.post(path: string, ...any) -> {any}
+	Request.delete(path: string, ...any) -> {any}
+	Request.put(path: string, ...any) -> {any}
+	
 	Request._new(path: string, type: string, player: Player, ...any) -> Request
 	
 	Request:param(index: name | number)
@@ -70,7 +76,7 @@ function Request.new(path: string, type: string, ...)
 	local succ, err = pcall(inst[event], inst, type, #pack < 2 and ... or pack)
 
 	if not succ then
-		warn(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)))
+		warn(debug.traceback(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)), 2))
 
 		return {
 			Status = 500,
@@ -84,6 +90,22 @@ function Request.new(path: string, type: string, ...)
 
 		return err
 	end
+end
+
+function Request.get(path: string, ...)
+	return Request.new(path, "GET", ...)
+end
+
+function Request.post(path: string, ...)
+	return Request.new(path, "POST", ...)
+end
+
+function Request.delete(path: string, ...)
+	return Request.new(path, "DELETE", ...)
+end
+
+function Request.put(path: string, ...)
+	return Request.new(path, "PUT", ...)
 end
 
 function Request._new(path, type, player, ...)

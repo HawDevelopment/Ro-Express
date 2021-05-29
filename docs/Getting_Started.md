@@ -67,6 +67,7 @@ Now when the client makes a GET request to Method 1 it we get its name!
 
 Using the Request class you can make request to paths and trees.
 
+You can use `Request.new()` to make Requests, if you want a cleaner syntax you can use `Request.METHOD()` instead.
 
 When making a Request you will need:
 
@@ -91,6 +92,9 @@ app:Listen("Tree")
 local express = require(game:GetService("ReplicatedStorage").express)
 
 local Return = express.Request("Tree://Method 1", "GET")
+
+-- You can also use:
+local Return = express.Request.get("Tree://Method 1")
 
 print(Return.Body) -> "Hello World!"
 print(Return.Succes) -> true
