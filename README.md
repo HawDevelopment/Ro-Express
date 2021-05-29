@@ -15,19 +15,16 @@ local app = express()
 
 -- Registering a GET method
 app:get("/GetHugs", function(request, response)
-    
-    local name = request.Player.Name
-    if name == "Sleitnick" or name == "Elttob" then
-        response:status(200):send("Hugs 🤗")
-    end
+    response:status(200):send("Hugs 🤗")
 end)
 
 -- Attaching middleware to the GET method
 app:use("/GetHugs", function(request, response)
     
     local name = request.Player.Name
-    if name == "HawDevelopment" then
-        response:status(401):send("Not Authorized!")
+    if not (name == "Sleitnick" or name == "Elttob") then
+        -- Lock the response if not authorized
+        response:status(401):done()
     end
 end)
 
