@@ -510,6 +510,7 @@
 Now when the client makes a GET request to Method 1 it we get its name!</p>
 <h3 id="making-a-request">Making a Request</h3>
 <p>Using the Request class you can make request to paths and trees.</p>
+<p>You can use <code>Request.new()</code> to make Requests, if you want a cleaner syntax you can use <code>Request.METHOD()</code> instead.</p>
 <p>When making a Request you will need:</p>
 <ul>
 <li>The URL, with tree name and path. So something like <code>Tree://Method 1</code>.</li>
@@ -531,6 +532,9 @@ Now when the client makes a GET request to Method 1 it we get its name!</p>
 <span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">game</span><span class="p">:</span><span class="n">GetService</span><span class="p">(</span><span class="s2">&quot;ReplicatedStorage&quot;</span><span class="p">).</span><span class="n">express</span><span class="p">)</span>
 
 <span class="kd">local</span> <span class="n">Return</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">(</span><span class="s2">&quot;Tree://Method 1&quot;</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">)</span>
+
+<span class="c1">-- You can also use:</span>
+<span class="kd">local</span> <span class="n">Return</span> <span class="o">=</span> <span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Tree://Method 1&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">Return</span><span class="p">.</span><span class="n">Body</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Hello World!&quot;</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">Return</span><span class="p">.</span><span class="n">Succes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">true</span>

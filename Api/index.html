@@ -412,6 +412,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#get-post-delete-put_1" class="md-nav__link">
+    Get, Post, Delete, Put
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#requestparam" class="md-nav__link">
     Request:param
   </a>
@@ -603,6 +610,13 @@
           <li class="md-nav__item">
   <a href="#requestpath" class="md-nav__link">
     Request.Path
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-post-delete-put_1" class="md-nav__link">
+    Get, Post, Delete, Put
   </a>
   
 </li>
@@ -802,7 +816,7 @@ When the Method is called, any Middleware attached to it will be called first. F
 
 <h2 id="request">Request</h2>
 <h3 id="requestnew"><code>Request.new()</code></h3>
-<p><code>Request.new(path: string, method: string, ...any)</code></p>
+<p><code>Request.new(path: string, method: string, ...any): {any}</code></p>
 <p>Make a request to a specific path with a method attached.
 <code>Request.new</code> can be called like <code>Request()</code></p>
 <div class="highlight"><pre><span></span><code><span class="c1">-- SERVER</span>
@@ -871,6 +885,17 @@ When the Method is called, any Middleware attached to it will be called first. F
 <span class="n">app</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/Method 1&quot;</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
     <span class="n">pring</span><span class="p">(</span><span class="n">req</span><span class="p">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;/Method 1&quot;</span>
 <span class="kr">end</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="get-post-delete-put_1"><code>Get, Post, Delete, Put</code></h3>
+<p><code>Request.METHOD(path: string, ...any): {any}</code></p>
+<p>Makes a request with the Method as type with any arguments given.
+This is exactly same thing as doing <code>Request.new(path, METHOD, ...)</code> but just neater.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">express</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">to</span><span class="p">.</span><span class="n">express</span><span class="p">)</span>
+
+<span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Tree://Method 1&quot;</span><span class="p">)</span>
+<span class="c1">-- The same as </span>
+<span class="n">express</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Tree://Method 1&quot;</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="requestparam"><code>Request:param</code></h3>
