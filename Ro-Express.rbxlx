@@ -52,7 +52,7 @@
 				<Z>0</Z>
 			</Vector3>
 			<string name="Name">Workspace</string>
-			<bool name="NeedsPivotMigration">true</bool>
+			<bool name="NeedsPivotMigration">false</bool>
 			<token name="PhysicsSteppingMethod">0</token>
 			<Ref name="PrimaryPart">null</Ref>
 			<token name="SignalBehavior">0</token>
@@ -545,20 +545,20 @@ app:Listen("Client")
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="Folder" referent="RBXD3067BF110434067B3A3F720F1A45E67">
+			<Item class="Folder" referent="RBX7308BF7944334F97B4BCB86BB87DD267">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<string name="Name">Examples</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="LocalScript" referent="RBXB5E6B0133537458EBE37CE5C4616B596">
+				<Item class="LocalScript" referent="RBX3B2E3E2BC31049E1AA2719AA48128266">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<bool name="Disabled">false</bool>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Boot</string>
-						<string name="ScriptGuid">{2092B735-E725-46F9-94D5-5ADF01A80995}</string>
+						<string name="ScriptGuid">{F9A2DAC8-245B-4ADC-961A-3CA3FEABCC95}</string>
 						<ProtectedString name="Source"><![CDATA[--[[
     Example Client
     HawDevelopment
@@ -575,47 +575,19 @@ end
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="Folder" referent="RBX3C07936D1D81495FB47FEAB479DBEADE">
+				<Item class="Folder" referent="RBXCDB07A71880C4C4F864D54699F5DD0C9">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<string name="Name">Examples</string>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="ModuleScript" referent="RBX9E2B268CC86E4367961E415319A3896D">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<Content name="LinkedSource"><null></null></Content>
-							<string name="Name">Client-Server</string>
-							<string name="ScriptGuid">{4AAADBF8-AF01-441F-A09D-7049B2CD4BC6}</string>
-							<ProtectedString name="Source"><![CDATA[--[[
-    Client-Server Example
-    HawDevelopment
-    27/05/2021
---]]
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local express = require(ReplicatedStorage.express)
-
-local Return = express.Request.new("MoneyTree://GetMoney", "Get").Body or 10
-
-express.Request.new("MoneyTree://SetMoney", "Post", Return + 10)
-
-print(express.Request.new("MoneyTree://GetMoney", "Get").Body)
-
-return {}
-]]></ProtectedString>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-						</Properties>
-					</Item>
-					<Item class="ModuleScript" referent="RBXE7833E997F1A43CAB9B394EB9BA29B71">
+					<Item class="ModuleScript" referent="RBXA7B2D6EE0E604B44BB7D5F615F4F2EF0">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">Auth</string>
-							<string name="ScriptGuid">{5CD87B19-FC5E-49FB-9D9C-3C4B2691828B}</string>
+							<string name="ScriptGuid">{9E1EF099-6DE2-4BA3-8A22-B4586FC3E6A4}</string>
 							<ProtectedString name="Source"><![CDATA[--[[
     Auth Example
     HawDevelopment
@@ -633,6 +605,34 @@ if Return.Status == 401 or not Return.Succes then
 else
 	print("Get some hugs: " .. Return.Body)
 end
+
+return {}
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+						</Properties>
+					</Item>
+					<Item class="ModuleScript" referent="RBX19A1E23F99434C1F88E4079CA21C940F">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Client-Server</string>
+							<string name="ScriptGuid">{623490A0-2686-4DF3-BCD5-5D4DA6652C56}</string>
+							<ProtectedString name="Source"><![CDATA[--[[
+    Client-Server Example
+    HawDevelopment
+    27/05/2021
+--]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local express = require(ReplicatedStorage.express)
+
+local Return = express.Request.new("MoneyTree://GetMoney", "Get").Body or 10
+
+express.Request.new("MoneyTree://SetMoney", "Post", Return + 10)
+
+print(express.Request.new("MoneyTree://GetMoney", "Get").Body)
 
 return {}
 ]]></ProtectedString>
@@ -906,12 +906,12 @@ app:Listen("Debug")
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBX645BCB63D7ED4D578F33004A75C4EBDE">
+				<Item class="ModuleScript" referent="RBXA6939A18C6E648DEBB7CB875C67C4FEC">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">App.spec</string>
-						<string name="ScriptGuid">{2D58C61C-3900-4DCC-B53D-51AB0EFE3568}</string>
+						<string name="ScriptGuid">{EB73D5C7-F5DD-4EC5-A389-AB2E9468F4B4}</string>
 						<ProtectedString name="Source"><![CDATA[local express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
@@ -1003,21 +1003,45 @@ end
 					</Properties>
 				</Item>
 			</Item>
+			<Item class="Folder" referent="RBX2EA79ECB6EFA4E0D9031E4A2F0796C0C">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Response</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBX4094692D55464B7AA0C3A6095F3AC9BF">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Methods</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBXF88AD91C97F54504A7B2C2806F3CB118">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Request</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
 		</Item>
-		<Item class="Folder" referent="RBX4BB7EA8BEB8C4B9891442EFE93134D96">
+		<Item class="Folder" referent="RBXCAF959B192D9435CB350829ACFE87094">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<string name="Name">Examples</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="Script" referent="RBX4555C3EAA2924149B35A3DB273267FD3">
+			<Item class="Script" referent="RBX89689F9352B542EC9BC98F2A20693103">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<bool name="Disabled">false</bool>
 					<Content name="LinkedSource"><null></null></Content>
 					<string name="Name">Boot</string>
-					<string name="ScriptGuid">{C56A8DB5-C199-4434-A703-39D9831F4ECC}</string>
+					<string name="ScriptGuid">{860B7BD1-CFDB-4185-8250-0E9428F3822F}</string>
 					<ProtectedString name="Source"><![CDATA[--[[
     Example Server
     HawDevelopment
@@ -1034,59 +1058,19 @@ end
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="Folder" referent="RBX2BBFE048EFB746A7AB494993EDA63A72">
+			<Item class="Folder" referent="RBXFD7D3B13834F4D2AA0F33F9C2AE6F8E8">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<string name="Name">Examples</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBXC6380AE075D44BCE96B30AF6A38E6816">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">Client-Server</string>
-						<string name="ScriptGuid">{B3437BC6-EDE0-472A-9E3D-73ADE6141DBD}</string>
-						<ProtectedString name="Source"><![CDATA[--[[
-    Client-Server Example
-    HawDevelopment
-    27/05/2021
---]]
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local express = require(ReplicatedStorage.express)
-
-local app: App = express.App.new()
-
-local Money = {}
-
-app:get("/GetMoney", function(req: Request, res: Response)
-	-- Response Status will defualt to 200, so we dont have to call it.
-	res:send(Money[req.Player] or 0)
-end)
-
-app:post("/SetMoney", function(req: Request, res: Response)
-	assert(req.Body, "Need a valid amount of Money to set!")
-	Money[req.Player] = req.Body
-
-	res:send("We set the Money!")
-end)
-
-app:Listen("MoneyTree")
-
-return {}
-]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-					</Properties>
-				</Item>
-				<Item class="ModuleScript" referent="RBX64F23254B2F744EFAA95B17D77539A83">
+				<Item class="ModuleScript" referent="RBX4294369643C844ED8D319C926685ABCD">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Auth</string>
-						<string name="ScriptGuid">{DDE4FC87-69A0-44BA-A96D-7746A8D93814}</string>
+						<string name="ScriptGuid">{CD151E4A-06A3-4A39-B16B-70C8E2053E5E}</string>
 						<ProtectedString name="Source"><![CDATA[--[[
     Auth Example
     HawDevelopment
@@ -1126,6 +1110,46 @@ app:use("/", function(req, res)
 end)
 
 app:Listen("AuthTree")
+
+return {}
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBXF8A16E53B5AD4A27B74EC561D90307A9">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Client-Server</string>
+						<string name="ScriptGuid">{F330784C-D424-42B0-A07A-AC3BC980792A}</string>
+						<ProtectedString name="Source"><![CDATA[--[[
+    Client-Server Example
+    HawDevelopment
+    27/05/2021
+--]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local express = require(ReplicatedStorage.express)
+
+local app: App = express.App.new()
+
+local Money = {}
+
+app:get("/GetMoney", function(req: Request, res: Response)
+	-- Response Status will defualt to 200, so we dont have to call it.
+	res:send(Money[req.Player] or 0)
+end)
+
+app:post("/SetMoney", function(req: Request, res: Response)
+	assert(req.Body, "Need a valid amount of Money to set!")
+	Money[req.Player] = req.Body
+
+	res:send("We set the Money!")
+end)
+
+app:Listen("MoneyTree")
 
 return {}
 ]]></ProtectedString>
@@ -1636,6 +1660,11 @@ local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
 
 local METHODS = "GET POST DELETE PUT"
 
+local NOT_FOUND = {
+	Status = 404,
+	Succes = false,
+}
+
 local t = require(script.Parent.t)
 
 local Request = require(script.Parent.Request)
@@ -1707,14 +1736,13 @@ function Router:__newPath(path, parent)
 	assert(t.tuple(t.string)(path))
 	assert(not self.paths[path], "Path is already made!")
 
-	local newpath = {
+	self.paths[path] = {
 		router = Router._new(true, true),
 		path = path,
 		parent = parent,
 	}
 
-	self.paths[path] = newpath
-	return newpath
+	return self.paths[path]
 end
 
 function Router:__addPath(path, value, type)
@@ -1745,16 +1773,13 @@ function Router:__handleRouter(path, ...)
 end
 
 function Router:__handleMethod(path, type, ...)
-	assert(t.table(path))
-	assert(t.string(type))
+	assert(t.tuple(t.table, t.string)(path, type))
 
 	if path.router.methods.ALL then
 		Runner(path, path.router.methods.ALL, ...)
 	end
 
-	if path.router.methods[type] then
-		return Runner(path, path.router.methods[type], ...)
-	end
+	Runner(path, path.router.methods[type], ...)
 end
 
 -- Building
@@ -1770,48 +1795,51 @@ end
 function Router:__buildPath(path, inst)
 	path = self.paths[path]
 
-	if not path or not inst or path.path == "/" then
+	if not path or not inst then
 		return
 	elseif path.remote then
 		return path.remote
 	end
 
-	local parent = self:__buildPath(path.parent, inst)
+	local parent = path.path == "/" and inst or self:__buildPath(path.parent, inst)
 
 	return self:__bindPath(path, inst, parent)
 end
 
 function Router:__bindPath(path, root, parent)
-	local temp = Instance.new(REMOTE)
-
-	temp.Name = string.match(path.path, "[%a%d]+$")
-	temp:SetAttribute("PATH", path.path)
+	local temp
+	if path.path == "/" then
+		temp = root
+	else
+		temp = Instance.new(REMOTE)
+		temp.Name = string.match(path.path, "[%a%d]+$")
+		temp.Parent = parent or root
+	end
+	path.remote = temp
 
 	temp[EVENT] = function(...)
 		local player, type, arg
 		if IS_SERVER then
 			player, type, arg = ...
 		else
-			type, arg = ...
+			player, type, arg = game.Players.LocalPlayer, ...
 		end
 
-		assert(t.tuple(t.string, t.any)(type, arg))
 		type = string.upper(type)
+		assert(t.tuple(t.string, t.any)(type, arg))
+		assert(Router.__isMethod(type), "Bad Request: That method doesnt exist!")
 
-		if not Router.__isMethod(type) then
-			return error("Bad Request: That method doesnt exist!")
+		if not path.router.methods[type] then
+			return NOT_FOUND
 		end
 
 		local req = Request._new(path.path, type, player, arg)
 		local res = Response._new()
 
-		if self.paths[path.parent] then
-			for _, router in pairs(self:__getParentMiddleware(self.paths[path.parent], {})) do
-				router:__handleRouter(path, req, res)
-			end
+		for _, router in pairs(self:__getParentMiddleware(path, {})) do
+			router:__handleRouter(path, req, res)
 		end
 
-		path.router:__handleRouter(path, req, res)
 		path.router:__handleMethod(path, type, req, res)
 
 		res:done()
@@ -1822,9 +1850,6 @@ function Router:__bindPath(path, root, parent)
 			Body = res._param,
 		}
 	end
-
-	path.remote = temp
-	temp.Parent = parent or root
 
 	return temp
 end
