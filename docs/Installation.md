@@ -6,16 +6,16 @@ Also, you should update the module to new versions regularly.
 
 **Roblox Studio:**
 
-* Get the Module from the [Library](https://youtu.be/dQw4w9WgXcQ).
+* Get the Module from the [Library](https://www.roblox.com/library/7008961783/Ro-Express) or from [github realeases](https://github.com/HawDevelopment/Ro-Express/releases).
 * Place the Module within ReplicatedStorage.
 
 **Rojo workflow:**
 
-* Download the Ro-Express from the latest [release](https://youtu.be/dQw4w9WgXcQ).
+* Download the Ro-Express from the latest [release](https://github.com/HawDevelopment/Ro-Express/releases).
 * Extract the Module from the zipped file.
 * Place the Module in ReplicatedStorage.
 
 **Git workflow:**
 
-* Run ```git submodule add https://github.com/HawDevelopment/Ro-Express```
+* Run ```git submodule add https://github.com/HawDevelopment/Ro-Express.git```
 * Point the Submodule folder to ReplicatedStorage using Rojo.
