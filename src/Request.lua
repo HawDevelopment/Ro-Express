@@ -21,8 +21,10 @@
 	Request.Method: string
 	Request.Path: string
 --]]
-
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local IS_SERVER = RunService:IsServer()
 
 local NOTFOUND = {
 	Status = 404,
@@ -46,15 +48,16 @@ function FindChild(inst: Instance, split: { any }, index: number)
 	return nil
 end
 
+local function MatchOrError(str: string, match: string)
+	return str:match(match) or error("Invalid path: " .. str, 3)
+end
+
 function Request.new(path: string, type: string, ...)
 	assert(t.tuple(t.string, t.string)(path, type))
 
 	-- Find the tree
-	local tree = ReplicatedStorage:WaitForChild(path:match("[%a%d]+"))
-
-	if not tree then
-		return NOTFOUND
-	end
+	local tree = ReplicatedStorage:WaitForChild(MatchOrError(path, "[%a%d]+"))
+	assert(tree, "Invalid root: " .. path)
 
 	local split = (path:gsub("[%a%d]+://", "")):split("/")
 	local inst: RemoteFunction | BindableFunction
@@ -65,15 +68,27 @@ function Request.new(path: string, type: string, ...)
 	else
 		inst = FindChild(tree, split, 1)
 	end
+	assert(inst, "Invalid path: " .. path)
 
-	if not inst then
-		return NOTFOUND
+	local event
+	if inst:IsA("RemoteFunction") then
+		event = IS_SERVER and "InvokeClient" or "InvokeServer"
+	elseif inst:IsA("BindableFunction") then
+		event = "Invoke"
 	end
 
-	local event = inst:IsA("RemoteFunction") and "InvokeServer" or "Invoke"
-
 	local pack = table.pack(...)
-	local succ, err = pcall(inst[event], inst, type, #pack < 2 and ... or pack)
+	local succ, err
+	if IS_SERVER then
+		local plr = table.remove(pack, 1)
+		if not plr or not plr:IsA("Player") then
+			error("Bad argument: Expected Player to be argument three!", 2)
+		end
+
+		succ, err = pcall(inst[event], inst, plr, type, #pack < 2 and ... or pack)
+	else
+		succ, err = pcall(inst[event], inst, type, #pack < 2 and ... or pack)
+	end
 
 	if not succ then
 		warn(debug.traceback(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)), 2))
@@ -108,6 +123,7 @@ function Request.put(path: string, ...)
 	return Request.new(path, "PUT", ...)
 end
 
+-- Used to create the request object used in callbacks.
 function Request._new(path, type, player, ...)
 	local self = setmetatable({}, Request)
 
@@ -126,6 +142,9 @@ function Request:param(index: string | number, default: any?)
 	end
 end
 
-return setmetatable({}, { __index = Request, __call = function(_, ...)
-	return Request.new(...)
-end })
+return setmetatable({}, {
+	__index = Request,
+	__call = function(_, ...)
+		return Request.new(...)
+	end,
+})

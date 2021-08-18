@@ -46,8 +46,9 @@ function Response:send(...)
 	return self
 end
 
-function Response:status(status: number)
+function Response:status(status: number?)
 	if not self._done then
+		-- Find out if it's a succes.
 		local start = tostring(status):match("^%d")
 		if ERROR_STATUS:find(start) then
 			self._succes = false

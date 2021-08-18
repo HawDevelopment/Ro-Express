@@ -14,6 +14,7 @@
 	App:Listen(name: string | number)
 	App:Destroy()
 --]]
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local IS_SERVER = game:GetService("RunService"):IsServer()
 local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
@@ -29,12 +30,12 @@ local App = {}
 App.__index = App
 
 function App.new()
-	local temp = setmetatable({}, {
+	local self = setmetatable({}, {
 		__index = function(tab, index: string)
 			if METHODS:lower():find(index:lower()) then
 				return function(_, ...)
 					assert(t.tuple(t.string, t.callback)(...))
-					App.__registerValue(tab, Methods[index:lower()](tab, ...), "Method")
+					tab:__registerValue(Methods[index:lower()](tab, ...), "Method")
 				end
 			end
 
@@ -42,12 +43,12 @@ function App.new()
 		end,
 	})
 
-	temp._paths = {}
-	temp._router = Router._new(false, false)
+	self._paths = {}
+	self._router = Router._new(false)
 
-	temp._router.paths = {}
+	self._router.paths = {}
 
-	return temp
+	return self
 end
 
 function App:__newPath(path, parentpath)
@@ -57,27 +58,17 @@ function App:__newPath(path, parentpath)
 	self._router:__newPath(path, parentpath)
 end
 
-function App:__addPath(path, value, type)
-	assert(t.tuple(t.string, t.any, t.string)(path, value, type))
-	self._router:__addPath(path, value, type)
-end
-
-function App:__listenPath(path, inst)
-	assert(t.tuple(t.string, t.any)(path, inst))
-	self._router:__buildPath(path, inst)
-end
-
 function App:Listen(name: string | number)
 	assert(t.union(t.string, t.number)(name))
 	assert(not self._root, "Cannot build an app already built!")
 
 	self._name = assert(name, "Expected a name!")
 
-	self._root = Instance.new(REMOTE)
+	self._root = ReplicatedStorage:FindFirstChild(name) or Instance.new(REMOTE)
 	self._root.Name = name
 
 	for _, path in pairs(self._paths) do
-		self:__listenPath(path, self._root)
+		self._router:__buildPath(path, self._root)
 	end
 
 	self._root.Parent = game:GetService("ReplicatedStorage")
@@ -95,7 +86,7 @@ function App:__registerValue(tab: { any }, type)
 		self:__newPath(path, parentname == "" and "/" or parentname)
 	end
 
-	self:__addPath(path, tab, type)
+	self._router:__addPath(path, tab, type)
 end
 
 function App:use(path: string, inst: any)
@@ -110,9 +101,11 @@ function App:Destroy()
 	end
 
 	table.clear(self)
-	setmetatable(self, { __index = function()
-		error("This App is destroyed!", 2)
-	end })
+	setmetatable(self, {
+		__index = function()
+			error("This App is destroyed!", 2)
+		end,
+	})
 end
 
 return setmetatable(App, { __call = App.new })

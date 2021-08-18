@@ -21,9 +21,7 @@ local Router = {}
 Router.__index = Router
 
 local IS_SERVER = game:GetService("RunService"):IsServer()
-local EVENT = IS_SERVER and "OnServerInvoke" or "OnInvoke"
 local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
-
 local METHODS = "GET POST DELETE PUT"
 
 local NOT_FOUND = {
@@ -36,7 +34,7 @@ local t = require(script.Parent.t)
 local Request = require(script.Parent.Request)
 local Response = require(script.Parent.Response)
 
-local Runner
+local Runner, Index
 do
 	local Runners = {
 		["Router"] = function(_, inst, ...)
@@ -47,39 +45,32 @@ do
 			return inst.callback(...)
 		end,
 	}
-
-	Runner = function(path, inst, ...)
-		-- For methods, since they already have a value assigned to type (Get or Post etc.)
-		if Runners[inst.Classname] then
-			return Runners[inst.Classname](path, inst, ...)
-		elseif Runners[inst._type] then
-			return Runners[inst._type](path, inst, ...)
-		end
-	end
-end
-
-local Index
-do
 	Index = {
 		Method = "Method",
 		Router = "Router",
 		["function"] = "Router",
 	}
+
+	Runner = function(path, inst, ...)
+		-- For methods, since they already have a value assigned to type (Get or Post etc.)
+		local func = Runners[inst.Classname or inst._type]
+		local succes, err = pcall(func, path, inst, ...)
+		if not succes then
+			error("Path: " .. tostring(path.path) .. " had an error!\n" .. tostring(err), 3)
+		end
+	end
 end
 
--- Constructures
+-- Constructors
 
-function Router._new(child, values)
-	values = values or true
-	local self = setmetatable({}, Router)
+function Router._new(child: boolean?)
+	local self = setmetatable({
+		IsChild = child or false,
+	}, Router)
 
-	if values then
-		if child then
-			self.methods = {}
-			self.routers = {}
-		end
-
-		self.IsChild = child or false
+	if child then
+		self.methods = {}
+		self.routers = {}
 	end
 
 	return self
@@ -87,7 +78,7 @@ end
 
 function Router.func(path, func)
 	assert(t.tuple(t.string, t.callback)(path, func))
-	local router = Router._new(false, false)
+	local router = Router._new(false)
 
 	router.router = func
 	router.path = path
@@ -103,7 +94,7 @@ function Router:__newPath(path, parent)
 	assert(not self.paths[path], "Path is already made!")
 
 	self.paths[path] = {
-		router = Router._new(true, true),
+		router = Router._new(true),
 		path = path,
 		parent = parent,
 	}
@@ -120,7 +111,9 @@ function Router:__addPath(path, value, type)
 		return
 	end
 
-	local index = Index[type or value.Classname or value._type]
+	local index = Index[type or value.Classname or value._type or error(
+		"Value of type: " .. typeof(value) .. " has no type or Classname!"
+	)]
 
 	if index == "Method" then
 		path.router.methods[value._type] = value
@@ -144,7 +137,6 @@ function Router:__handleMethod(path, type, ...)
 	if path.router.methods.ALL then
 		Runner(path, path.router.methods.ALL, ...)
 	end
-
 	Runner(path, path.router.methods[type], ...)
 end
 
@@ -168,8 +160,19 @@ function Router:__buildPath(path, inst)
 	end
 
 	local parent = path.path == "/" and inst or self:__buildPath(path.parent, inst)
-
 	return self:__bindPath(path, inst, parent)
+end
+
+local function Copy(tab)
+	local new = {}
+	for i, v in pairs(tab) do
+		new[i] = v
+	end
+	return new
+end
+
+local function isMethod(type: string)
+	return METHODS:find(type:upper())
 end
 
 function Router:__bindPath(path, root, parent)
@@ -177,13 +180,21 @@ function Router:__bindPath(path, root, parent)
 	if path.path == "/" then
 		temp = root
 	else
-		temp = Instance.new(REMOTE)
-		temp.Name = string.match(path.path, "[%a%d]+$")
+		local name = string.match(path.path, "[%a%d]+$")
+		temp = (root and root:FindFirstChild(name)) or (parent and parent:FindFirstChild(name)) or Instance.new(REMOTE)
+		temp.Name = name
 		temp.Parent = parent or root
 	end
 	path.remote = temp
 
-	temp[EVENT] = function(...)
+	local event
+	if temp:IsA("RemoteFunction") then
+		event = IS_SERVER and "OnServerInvoke" or "OnClientInvoke"
+	elseif temp:IsA("BindableFunction") then
+		event = "OnInvoke"
+	end
+
+	temp[event] = function(...)
 		local player, type, arg
 		if IS_SERVER then
 			player, type, arg = ...
@@ -191,12 +202,12 @@ function Router:__bindPath(path, root, parent)
 			player, type, arg = game.Players.LocalPlayer, ...
 		end
 
-		type = string.upper(type)
 		assert(t.tuple(t.string, t.any)(type, arg))
-		assert(Router.__isMethod(type), "Bad Request: That method doesnt exist!")
+		assert(isMethod(type), "Bad Request: That method doesnt exist!")
 
+		type = string.upper(type)
 		if not path.router.methods[type] then
-			return NOT_FOUND
+			return Copy(NOT_FOUND)
 		end
 
 		local req = Request._new(path.path, type, player, arg)
@@ -207,7 +218,6 @@ function Router:__bindPath(path, root, parent)
 		end
 
 		path.router:__handleMethod(path, type, req, res)
-
 		res:done()
 
 		return {
@@ -218,12 +228,6 @@ function Router:__bindPath(path, root, parent)
 	end
 
 	return temp
-end
-
--- Util
-
-function Router.__isMethod(type: string)
-	return METHODS:find(type:upper())
 end
 
 return Router

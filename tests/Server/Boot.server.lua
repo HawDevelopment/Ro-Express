@@ -4,39 +4,18 @@ TestEZ.TestBootstrap:run({ script.Parent })
 
 -- DEBUGGING
 
---[[
+---[[
 local express: Express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
 local app: App = App.new()
 
-app:get("/Test", function()
-end)
-
-app:post("/Test2", function()
-	print("Foo Bar Bazz")
-end)
-
-app:delete("/Test/Test3", function()
-	print("Hello World!")
-end)
-
-app:get("/Test4", function()
-	print("Callback")
-end)
-
-app:all("/Test4", function()
-	print("All")
-end)
-
-app:use("/Test", function(req, res)
-	print(req.Body)
-	res:status(200):send("Hello", "World", "!")
-end)
-
-app:use("/Test/Test3", function(_, res)
-	print(res)
+app:get("/Test", function(_, res)
+	res:send("Hello World!")
 end)
 
 app:Listen("Debug")
+wait(10)
+print("From Client:")
+print(express.Request.new("Debug://Test", "GET", game.Players.HawDevelopment, "Server"))
 --]]
