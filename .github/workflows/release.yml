@@ -26,11 +26,13 @@ jobs:
           rojo build default.project.json -o express.rbxm
       - name: Get version
         id: get_version
-        run: echo "::set-output name=VERSION::${cat VERSION}"
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./VERSION
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ steps.get_version.outputs.content }}
           body_path: log.md
           fail_on_unmatched_files: true
           files: |
