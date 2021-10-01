@@ -1,0 +1,36 @@
+# Taken from: https://github.com/AtollStudios/Knit/blob/main/.github/workflows/release.yaml
+name: Release
+
+on: workflow_dispatch
+  
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install foreman
+        uses: Roblox/setup-foreman@v1
+        with:
+          version: "^1.0.0"
+          token: ${{ SECRETS.GITHUB_TOKEN }}
+      - name: Build repository
+        run: |
+          mkdir -p Ro-Express
+          cp -R src/* Ro-Express
+          zip -r express.zip Ro-Express/**
+      - name: Build place file
+        run: |
+          rojo build publish.project.json -o express.rbxl
+          rojo build default.project.json -o express.rbxm
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          body_path: log.md
+          fail_on_unmatched_files: true
+          files: |
+            express.zip
+            express.rbxm
+            express.rbxl
