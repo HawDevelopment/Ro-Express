@@ -29,10 +29,17 @@ jobs:
         uses: juliangruber/read-file-action@v1
         with:
           path: ./VERSION
+      - name: Tag commit
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: ${{ steps.get_version.outputs.content }}
+          commit-sha: "Release tag"
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           name: Release ${{ steps.get_version.outputs.content }}
+          input_tag_name: ${{ steps.get_version.outputs.content }}
           body_path: log.md
           fail_on_unmatched_files: true
           files: |
