@@ -1,0 +1,79 @@
+# Taken from: https://github.com/AtollStudios/Knit/blob/main/.github/workflows/release.yaml
+name: Release
+
+on: workflow_dispatch
+  
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install foreman
+        uses: Roblox/setup-foreman@v1
+        with:
+          version: "^1.0.0"
+          token: ${{ SECRETS.GITHUB_TOKEN }}
+      - name: Build repository
+        run: |
+          mkdir -p Ro-Express
+          cp -R src/* Ro-Express
+          zip -r express.zip Ro-Express/**
+      - name: Build place file
+        run: |
+          rojo build publish.project.json -o express.rbxl
+          rojo build default.project.json -o express.rbxm
+      - name: Get version
+        id: get_version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./VERSION
+      - name: Get Body
+        id: get_body
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./log.md
+      - name: Release
+        id: release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        with:
+          release_name: Release ${{ steps.get_version.outputs.content }}
+          tag_name: ${{ steps.get_version.outputs.content }}
+          body: ${{ steps.get_body.outputs.content}}
+      
+      - name: Upload Model File
+        id: upload-model-file 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }} 
+          asset_path: ./express.rbxm
+          asset_name: express.rbxm
+          asset_content_type: application/rbxm
+      
+      - name: Upload Place File
+        id: upload-place-file 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }} 
+          asset_path: ./express.rbxl
+          asset_name: express.rbxl
+          asset_content_type: application/rbxl
+      
+      - name: Upload Zip File
+        id: upload-zip-file 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: ./express.zip
+          asset_name: express.zip
+          asset_content_type: application/zip
+          
