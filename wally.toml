@@ -1,0 +1,9 @@
+[package]
+name = "hawdevelopment/express"
+description = "Easy to use remote handler/wrapper"
+license = "MIT"
+version = "1.0.1"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]

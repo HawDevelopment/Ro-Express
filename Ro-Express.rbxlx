@@ -7,30 +7,16 @@
 			<token name="AnimationWeightedBlendFix">0</token>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<token name="ClientAnimatorThrottling">0</token>
-			<string name="CollisionGroups">Default^0^1</string>
+			<string name="CollisionGroups">Default^0^-1</string>
 			<Ref name="CurrentCamera">RBX3712880BE520456994BDB2EA192EB75B</Ref>
 			<double name="DistributedGameTime">0</double>
 			<bool name="ExplicitAutoJoints">true</bool>
 			<float name="FallenPartsDestroyHeight">-500</float>
-			<bool name="FilteringEnabled">false</bool>
 			<float name="Gravity">196.199997</float>
+			<token name="HumanoidOnlySetCollisionsOnStateChange">0</token>
 			<token name="InterpolationThrottling">0</token>
 			<token name="LevelOfDetail">0</token>
 			<token name="MeshPartHeadsAndAccessories">0</token>
-			<CoordinateFrame name="ModelInPrimary">
-				<X>0</X>
-				<Y>0</Y>
-				<Z>0</Z>
-				<R00>1</R00>
-				<R01>0</R01>
-				<R02>0</R02>
-				<R10>0</R10>
-				<R11>1</R11>
-				<R12>0</R12>
-				<R20>0</R20>
-				<R21>0</R21>
-				<R22>1</R22>
-			</CoordinateFrame>
 			<CoordinateFrame name="ModelMeshCFrame">
 				<X>0</X>
 				<Y>0</Y>
@@ -151,6 +137,7 @@
 					<R22>1</R22>
 				</CoordinateFrame>
 				<bool name="CanCollide">true</bool>
+				<bool name="CanQuery">true</bool>
 				<bool name="CanTouch">true</bool>
 				<bool name="CastShadow">true</bool>
 				<int name="CollisionGroupId">0</int>
@@ -255,6 +242,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					<R22>1</R22>
 				</CoordinateFrame>
 				<bool name="CanCollide">true</bool>
+				<bool name="CanQuery">true</bool>
 				<bool name="CanTouch">true</bool>
 				<bool name="CastShadow">true</bool>
 				<int name="CollisionGroupId">0</int>
@@ -503,41 +491,17 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 
 -- DEBUGGING
 
---[[
+---[[
 local express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
 local app = App.new()
 
-app:get("/Test", function()
+app:get("/Test", function(_, res)
+	res:send("Hello From The Client")
 end)
 
-app:post("/Test2", function()
-	print("Foo Bar Bazz")
-end)
-
-app:delete("/Test/Test3", function()
-	print("Hello World!")
-end)
-
-app:get("/Test4", function()
-	print("Callback")
-end)
-
-app:all("/Test4", function()
-	print("All")
-end)
-
-app:use("/Test", function(req, res)
-	print(req.Body)
-	res:status(200):send("Hello", "World", "!")
-end)
-
-app:use("/Test/Test3", function(_, res)
-	print(res)
-end)
-
-app:Listen("Client")
+app:Listen("Debug")
 --]]
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
@@ -858,41 +822,20 @@ TestEZ.TestBootstrap:run({ script.Parent })
 
 -- DEBUGGING
 
---[[
+---[[
 local express: Express = require(game:GetService("ReplicatedStorage").express)
 local App = express.App
 
 local app: App = App.new()
 
-app:get("/Test", function()
-end)
-
-app:post("/Test2", function()
-	print("Foo Bar Bazz")
-end)
-
-app:delete("/Test/Test3", function()
-	print("Hello World!")
-end)
-
-app:get("/Test4", function()
-	print("Callback")
-end)
-
-app:all("/Test4", function()
-	print("All")
-end)
-
-app:use("/Test", function(req, res)
-	print(req.Body)
-	res:status(200):send("Hello", "World", "!")
-end)
-
-app:use("/Test/Test3", function(_, res)
-	print(res)
+app:get("/Test", function(_, res)
+	res:send("Hello World!")
 end)
 
 app:Listen("Debug")
+wait(10)
+print("From Client:")
+print(express.Request.new("Debug://Test", "GET", game.Players.HawDevelopment, "Server"))
 --]]
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
@@ -1211,6 +1154,7 @@ return {}
 	App:Listen(name: string | number)
 	App:Destroy()
 --]]
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local IS_SERVER = game:GetService("RunService"):IsServer()
 local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
@@ -1226,12 +1170,12 @@ local App = {}
 App.__index = App
 
 function App.new()
-	local temp = setmetatable({}, {
+	local self = setmetatable({}, {
 		__index = function(tab, index: string)
 			if METHODS:lower():find(index:lower()) then
 				return function(_, ...)
 					assert(t.tuple(t.string, t.callback)(...))
-					App.__registerValue(tab, Methods[index:lower()](tab, ...), "Method")
+					tab:__registerValue(Methods[index:lower()](tab, ...), "Method")
 				end
 			end
 
@@ -1239,12 +1183,12 @@ function App.new()
 		end,
 	})
 
-	temp._paths = {}
-	temp._router = Router._new(false, false)
+	self._paths = {}
+	self._router = Router._new(false)
 
-	temp._router.paths = {}
+	self._router.paths = {}
 
-	return temp
+	return self
 end
 
 function App:__newPath(path, parentpath)
@@ -1254,27 +1198,17 @@ function App:__newPath(path, parentpath)
 	self._router:__newPath(path, parentpath)
 end
 
-function App:__addPath(path, value, type)
-	assert(t.tuple(t.string, t.any, t.string)(path, value, type))
-	self._router:__addPath(path, value, type)
-end
-
-function App:__listenPath(path, inst)
-	assert(t.tuple(t.string, t.any)(path, inst))
-	self._router:__buildPath(path, inst)
-end
-
 function App:Listen(name: string | number)
 	assert(t.union(t.string, t.number)(name))
 	assert(not self._root, "Cannot build an app already built!")
 
 	self._name = assert(name, "Expected a name!")
 
-	self._root = Instance.new(REMOTE)
+	self._root = ReplicatedStorage:FindFirstChild(name) or Instance.new(REMOTE)
 	self._root.Name = name
 
 	for _, path in pairs(self._paths) do
-		self:__listenPath(path, self._root)
+		self._router:__buildPath(path, self._root)
 	end
 
 	self._root.Parent = game:GetService("ReplicatedStorage")
@@ -1292,7 +1226,7 @@ function App:__registerValue(tab: { any }, type)
 		self:__newPath(path, parentname == "" and "/" or parentname)
 	end
 
-	self:__addPath(path, tab, type)
+	self._router:__addPath(path, tab, type)
 end
 
 function App:use(path: string, inst: any)
@@ -1307,9 +1241,11 @@ function App:Destroy()
 	end
 
 	table.clear(self)
-	setmetatable(self, { __index = function()
-		error("This App is destroyed!", 2)
-	end })
+	setmetatable(self, {
+		__index = function()
+			error("This App is destroyed!", 2)
+		end,
+	})
 end
 
 return setmetatable(App, { __call = App.new })
@@ -1344,21 +1280,17 @@ Methods.__index = Methods
 
 Methods.Classname = "Method"
 
-function Methods:_run(method, ...)
-	return method.callback(...)
-end
-
 function Methods._new(type: string, path: string, callback: (any) -> any)
-	local self = setmetatable({}, Methods)
-
-	self._type = type
-	self._path = path
-	self.callback = callback
+	local self = setmetatable({
+		_type = type,
+		_path = path,
+		callback = callback,
+	}, Methods)
 
 	return self
 end
 
-function Methods.__setAttributes(inst: Instance, type: string, path: string): Instance
+function setAttributes(inst: Instance, type: string, path: string): Instance
 	inst:SetAttribute("TYPE", type)
 	inst:SetAttribute("PATH", path)
 end
@@ -1370,7 +1302,7 @@ function Methods:Build(parent: Instance)
 	local curr: RemoteFunction = parent
 
 	if #split < 1 then
-		Methods.__setAttributes(parent, self._type, self._path)
+		setAttributes(parent, self._type, self._path)
 	else
 		for i = 1, #split, 1 do
 			local temp = curr:FindFirstChild(split[i])
@@ -1381,7 +1313,7 @@ function Methods:Build(parent: Instance)
 				inst.Name = split[i]
 				inst.Parent = curr
 
-				Methods.__setAttributes(inst, self._type, self._path)
+				setAttributes(inst, self._type, self._path)
 				curr = inst
 			end
 		end
@@ -1391,39 +1323,12 @@ function Methods:Build(parent: Instance)
 	return curr
 end
 
-function Methods.get(_, path, callback)
-	path = assert(path, "Need a valid path")
-	callback = assert(callback, "Need a valid callback")
+local METHODS = "GET POST DELETE PUT ALL"
 
-	return Methods._new("GET", path, callback)
-end
-
-function Methods.post(_, path, callback)
-	path = assert(path, "Need a valid path")
-	callback = assert(callback, "Need a valid callback")
-
-	return Methods._new("POST", path, callback)
-end
-
-function Methods.delete(_, path, callback)
-	path = assert(path, "Need a valid path")
-	callback = assert(callback, "Need a valid callback")
-
-	return Methods._new("DELETE", path, callback)
-end
-
-function Methods.put(_, path, callback)
-	path = assert(path, "Need a valid path")
-	callback = assert(callback, "Need a valid callback")
-
-	return Methods._new("PUT", path, callback)
-end
-
-function Methods.all(_, path, callback)
-	path = assert(path, "Need a valid path")
-	callback = assert(callback, "Need a valid callback")
-
-	return Methods._new("ALL", path, callback)
+for _, str in pairs(METHODS:split(" ")) do
+	Methods[str:lower()] = function(_, path, callback)
+		return Methods._new(str, path, callback)
+	end
 end
 
 return Methods
@@ -1446,6 +1351,12 @@ return Methods
 
 --[[
 	Request.new(path: string, type: string, ...any) -> {any}
+	
+	Request.get(path: string, ...any) -> {any}
+	Request.post(path: string, ...any) -> {any}
+	Request.delete(path: string, ...any) -> {any}
+	Request.put(path: string, ...any) -> {any}
+	
 	Request._new(path: string, type: string, player: Player, ...any) -> Request
 	
 	Request:param(index: name | number)
@@ -1455,8 +1366,10 @@ return Methods
 	Request.Method: string
 	Request.Path: string
 --]]
-
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local IS_SERVER = RunService:IsServer()
 
 local NOTFOUND = {
 	Status = 404,
@@ -1480,15 +1393,16 @@ function FindChild(inst: Instance, split: { any }, index: number)
 	return nil
 end
 
+local function MatchOrError(str: string, match: string)
+	return str:match(match) or error("Invalid path: " .. str, 3)
+end
+
 function Request.new(path: string, type: string, ...)
 	assert(t.tuple(t.string, t.string)(path, type))
 
 	-- Find the tree
-	local tree = ReplicatedStorage:WaitForChild(path:match("[%a%d]+"))
-
-	if not tree then
-		return NOTFOUND
-	end
+	local tree = ReplicatedStorage:WaitForChild(MatchOrError(path, "[%a%d]+"))
+	assert(tree, "Invalid root: " .. path)
 
 	local split = (path:gsub("[%a%d]+://", "")):split("/")
 	local inst: RemoteFunction | BindableFunction
@@ -1499,18 +1413,30 @@ function Request.new(path: string, type: string, ...)
 	else
 		inst = FindChild(tree, split, 1)
 	end
+	assert(inst, "Invalid path: " .. path)
 
-	if not inst then
-		return NOTFOUND
+	local event
+	if inst:IsA("RemoteFunction") then
+		event = IS_SERVER and "InvokeClient" or "InvokeServer"
+	elseif inst:IsA("BindableFunction") then
+		event = "Invoke"
 	end
 
-	local event = inst:IsA("RemoteFunction") and "InvokeServer" or "Invoke"
-
 	local pack = table.pack(...)
-	local succ, err = pcall(inst[event], inst, type, #pack < 2 and ... or pack)
+	local succ, err
+	if IS_SERVER then
+		local plr = table.remove(pack, 1)
+		if not plr or not plr:IsA("Player") then
+			error("Bad argument: Expected Player to be argument three!", 2)
+		end
+
+		succ, err = pcall(inst[event], inst, plr, type, #pack < 2 and ... or pack)
+	else
+		succ, err = pcall(inst[event], inst, type, #pack < 2 and ... or pack)
+	end
 
 	if not succ then
-		warn(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)))
+		warn(debug.traceback(("Failed to call {%s}: %s"):format(inst:GetFullName(), tostring(err)), 2))
 
 		return {
 			Status = 500,
@@ -1526,6 +1452,23 @@ function Request.new(path: string, type: string, ...)
 	end
 end
 
+function Request.get(path: string, ...)
+	return Request.new(path, "GET", ...)
+end
+
+function Request.post(path: string, ...)
+	return Request.new(path, "POST", ...)
+end
+
+function Request.delete(path: string, ...)
+	return Request.new(path, "DELETE", ...)
+end
+
+function Request.put(path: string, ...)
+	return Request.new(path, "PUT", ...)
+end
+
+-- Used to create the request object used in callbacks.
 function Request._new(path, type, player, ...)
 	local self = setmetatable({}, Request)
 
@@ -1544,9 +1487,12 @@ function Request:param(index: string | number, default: any?)
 	end
 end
 
-return setmetatable({}, { __index = Request, __call = function(_, ...)
-	return Request.new(...)
-end })
+return setmetatable({}, {
+	__index = Request,
+	__call = function(_, ...)
+		return Request.new(...)
+	end,
+})
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
@@ -1606,8 +1552,9 @@ function Response:send(...)
 	return self
 end
 
-function Response:status(status: number)
+function Response:status(status: number?)
 	if not self._done then
+		-- Find out if it's a succes.
 		local start = tostring(status):match("^%d")
 		if ERROR_STATUS:find(start) then
 			self._succes = false
@@ -1655,9 +1602,7 @@ local Router = {}
 Router.__index = Router
 
 local IS_SERVER = game:GetService("RunService"):IsServer()
-local EVENT = IS_SERVER and "OnServerInvoke" or "OnInvoke"
 local REMOTE = IS_SERVER and "RemoteFunction" or "BindableFunction"
-
 local METHODS = "GET POST DELETE PUT"
 
 local NOT_FOUND = {
@@ -1670,7 +1615,7 @@ local t = require(script.Parent.t)
 local Request = require(script.Parent.Request)
 local Response = require(script.Parent.Response)
 
-local Runner
+local Runner, Index
 do
 	local Runners = {
 		["Router"] = function(_, inst, ...)
@@ -1681,39 +1626,32 @@ do
 			return inst.callback(...)
 		end,
 	}
-
-	Runner = function(path, inst, ...)
-		-- For methods, since they already have a value assigned to type (Get or Post etc.)
-		if Runners[inst.Classname] then
-			return Runners[inst.Classname](path, inst, ...)
-		elseif Runners[inst._type] then
-			return Runners[inst._type](path, inst, ...)
-		end
-	end
-end
-
-local Index
-do
 	Index = {
 		Method = "Method",
 		Router = "Router",
 		["function"] = "Router",
 	}
+
+	Runner = function(path, inst, ...)
+		-- For methods, since they already have a value assigned to type (Get or Post etc.)
+		local func = Runners[inst.Classname or inst._type]
+		local succes, err = pcall(func, path, inst, ...)
+		if not succes then
+			error("Path: " .. tostring(path.path) .. " had an error!\n" .. tostring(err), 3)
+		end
+	end
 end
 
--- Constructures
+-- Constructors
 
-function Router._new(child, values)
-	values = values or true
-	local self = setmetatable({}, Router)
+function Router._new(child: boolean?)
+	local self = setmetatable({
+		IsChild = child or false,
+	}, Router)
 
-	if values then
-		if child then
-			self.methods = {}
-			self.routers = {}
-		end
-
-		self.IsChild = child or false
+	if child then
+		self.methods = {}
+		self.routers = {}
 	end
 
 	return self
@@ -1721,7 +1659,7 @@ end
 
 function Router.func(path, func)
 	assert(t.tuple(t.string, t.callback)(path, func))
-	local router = Router._new(false, false)
+	local router = Router._new(false)
 
 	router.router = func
 	router.path = path
@@ -1737,7 +1675,7 @@ function Router:__newPath(path, parent)
 	assert(not self.paths[path], "Path is already made!")
 
 	self.paths[path] = {
-		router = Router._new(true, true),
+		router = Router._new(true),
 		path = path,
 		parent = parent,
 	}
@@ -1754,7 +1692,9 @@ function Router:__addPath(path, value, type)
 		return
 	end
 
-	local index = Index[type or value.Classname or value._type]
+	local index = Index[type or value.Classname or value._type or error(
+		"Value of type: " .. typeof(value) .. " has no type or Classname!"
+	)]
 
 	if index == "Method" then
 		path.router.methods[value._type] = value
@@ -1778,7 +1718,6 @@ function Router:__handleMethod(path, type, ...)
 	if path.router.methods.ALL then
 		Runner(path, path.router.methods.ALL, ...)
 	end
-
 	Runner(path, path.router.methods[type], ...)
 end
 
@@ -1802,8 +1741,19 @@ function Router:__buildPath(path, inst)
 	end
 
 	local parent = path.path == "/" and inst or self:__buildPath(path.parent, inst)
-
 	return self:__bindPath(path, inst, parent)
+end
+
+local function Copy(tab)
+	local new = {}
+	for i, v in pairs(tab) do
+		new[i] = v
+	end
+	return new
+end
+
+local function isMethod(type: string)
+	return METHODS:find(type:upper())
 end
 
 function Router:__bindPath(path, root, parent)
@@ -1811,13 +1761,21 @@ function Router:__bindPath(path, root, parent)
 	if path.path == "/" then
 		temp = root
 	else
-		temp = Instance.new(REMOTE)
-		temp.Name = string.match(path.path, "[%a%d]+$")
+		local name = string.match(path.path, "[%a%d]+$")
+		temp = (root and root:FindFirstChild(name)) or (parent and parent:FindFirstChild(name)) or Instance.new(REMOTE)
+		temp.Name = name
 		temp.Parent = parent or root
 	end
 	path.remote = temp
 
-	temp[EVENT] = function(...)
+	local event
+	if temp:IsA("RemoteFunction") then
+		event = IS_SERVER and "OnServerInvoke" or "OnClientInvoke"
+	elseif temp:IsA("BindableFunction") then
+		event = "OnInvoke"
+	end
+
+	temp[event] = function(...)
 		local player, type, arg
 		if IS_SERVER then
 			player, type, arg = ...
@@ -1825,12 +1783,12 @@ function Router:__bindPath(path, root, parent)
 			player, type, arg = game.Players.LocalPlayer, ...
 		end
 
-		type = string.upper(type)
 		assert(t.tuple(t.string, t.any)(type, arg))
-		assert(Router.__isMethod(type), "Bad Request: That method doesnt exist!")
+		assert(isMethod(type), "Bad Request: That method doesnt exist!")
 
+		type = string.upper(type)
 		if not path.router.methods[type] then
-			return NOT_FOUND
+			return Copy(NOT_FOUND)
 		end
 
 		local req = Request._new(path.path, type, player, arg)
@@ -1841,7 +1799,6 @@ function Router:__bindPath(path, root, parent)
 		end
 
 		path.router:__handleMethod(path, type, req, res)
-
 		res:done()
 
 		return {
@@ -1852,12 +1809,6 @@ function Router:__bindPath(path, root, parent)
 	end
 
 	return temp
-end
-
--- Util
-
-function Router.__isMethod(type: string)
-	return METHODS:find(type:upper())
 end
 
 return Router

@@ -1,37 +1,6 @@
 {
-  "name": "Ro-Express",
-  "tree": {
-    "$className": "DataModel",
-    "$ignoreUnknownInstances": true,
-    "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-      "express": {
-        "$path": "src"
-      },
-      "TestEz": {
-        "$path": "vendor/testez"
-      }
-    },
-    "ServerScriptService": {
-      "$className": "ServerScriptService",
-      "Tests": {
-        "$path": "tests/Server"
-      },
-      "Examples": {
-        "$path": "Examples/Server"
-      }
-    },
-    "StarterPlayer": {
-      "$className": "StarterPlayer",
-      "StarterPlayerScripts": {
-        "$className": "StarterPlayerScripts",
-        "Tests": {
-          "$path": "tests/Client"
-        },
-        "Examples": {
-          "$path": "Examples/Client"
-        }
-      }
-    }
-  }
+	"name": "express",
+	"tree": {
+		"$path": "src"
+	}
 }
