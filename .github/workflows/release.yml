@@ -22,7 +22,6 @@ jobs:
           zip -r express.zip Ro-Express/**
       - name: Build place file
         run: |
-          rojo build publish.project.json -o express.rbxl
           rojo build default.project.json -o express.rbxm
       - name: Get version
         id: get_version
@@ -54,17 +53,6 @@ jobs:
           asset_path: ./express.rbxm
           asset_name: express.rbxm
           asset_content_type: application/rbxm
-      
-      - name: Upload Place File
-        id: upload-place-file 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }} 
-          asset_path: ./express.rbxl
-          asset_name: express.rbxl
-          asset_content_type: application/rbxl
       
       - name: Upload Zip File
         id: upload-zip-file 
